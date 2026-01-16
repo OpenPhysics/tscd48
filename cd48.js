@@ -26,13 +26,7 @@ import {
   CommunicationError,
 } from './errors.js';
 
-import {
-  validateChannel,
-  validateVoltage,
-  clampVoltage,
-  clampRepeatInterval,
-  voltageToByte,
-} from './validation.js';
+import { validateChannel, voltageToByte } from './validation.js';
 
 class CD48 {
   /**

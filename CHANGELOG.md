@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Comprehensive testing infrastructure with Vitest
 - ESLint for code linting and quality checks
 - Prettier for consistent code formatting
@@ -28,16 +29,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.gitignore` file for better repository management
 
 ### Changed
+
 - Updated package.json with npm publishing configuration
 - Improved README.md with better documentation
 - Enhanced web interface with security improvements
 
 ### Fixed
+
 - Various code quality improvements based on linting rules
 
 ## [0.1.0] - 2024-XX-XX
 
 ### Added
+
 - Initial release
 - CD48 JavaScript library (cd48.js)
 - Web-based control interface (index.html)

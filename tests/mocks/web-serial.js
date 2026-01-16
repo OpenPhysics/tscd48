@@ -19,7 +19,8 @@ export function createMockSerialPort(options = {}) {
     responses = {
       'v\r': 'CD48 v1.0.0\r\n',
       'c\r': '0 0 0 0 0 0 0 0 0\r\n',
-      'C\r': 'Ch0: 0, Ch1: 0, Ch2: 0, Ch3: 0, Ch4: 0, Ch5: 0, Ch6: 0, Ch7: 0\r\n',
+      'C\r':
+        'Ch0: 0, Ch1: 0, Ch2: 0, Ch3: 0, Ch4: 0, Ch5: 0, Ch6: 0, Ch7: 0\r\n',
       'H\r': 'CD48 Help...\r\n',
       'p\r': '0 0 0 0 0 0 0 0 128 0\r\n',
       'P\r': 'Settings...\r\n',
