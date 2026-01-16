@@ -4,6 +4,9 @@ import {
   cleanupWebSerialMock,
 } from '../mocks/web-serial.js';
 
+// Import error classes
+import { NotConnectedError, InvalidChannelError } from '../../errors.js';
+
 // Import CD48 after mocks are set up
 const CD48Module = await import('../../cd48.js');
 const CD48 = CD48Module.default || CD48Module;
@@ -112,21 +115,19 @@ describe('CD48', () => {
     it('should throw error for invalid channel in setChannel', async () => {
       await expect(
         cd48.setChannel(-1, { A: 1, B: 0, C: 0, D: 0 })
-      ).rejects.toThrow('Channel must be 0-7');
+      ).rejects.toThrow(InvalidChannelError);
 
       await expect(
         cd48.setChannel(8, { A: 1, B: 0, C: 0, D: 0 })
-      ).rejects.toThrow('Channel must be 0-7');
+      ).rejects.toThrow(InvalidChannelError);
     });
 
     it('should throw error for invalid channel in measureRate', async () => {
       await expect(cd48.measureRate(-1, 1)).rejects.toThrow(
-        'Channel must be 0-7'
+        InvalidChannelError
       );
 
-      await expect(cd48.measureRate(8, 1)).rejects.toThrow(
-        'Channel must be 0-7'
-      );
+      await expect(cd48.measureRate(8, 1)).rejects.toThrow(InvalidChannelError);
     });
   });
 
@@ -221,17 +222,15 @@ describe('CD48', () => {
     });
 
     it('should throw error when sending command while not connected', async () => {
-      await expect(cd48.sendCommand('v')).rejects.toThrow(
-        'Not connected to CD48'
-      );
+      await expect(cd48.sendCommand('v')).rejects.toThrow(NotConnectedError);
     });
 
     it('should throw error when getting version while not connected', async () => {
-      await expect(cd48.getVersion()).rejects.toThrow('Not connected to CD48');
+      await expect(cd48.getVersion()).rejects.toThrow(NotConnectedError);
     });
 
     it('should throw error when getting counts while not connected', async () => {
-      await expect(cd48.getCounts()).rejects.toThrow('Not connected to CD48');
+      await expect(cd48.getCounts()).rejects.toThrow(NotConnectedError);
     });
   });
 
@@ -308,7 +307,7 @@ describe('CD48', () => {
     it('should throw error when setting trigger level while disconnected', async () => {
       const disconnectedCd48 = new CD48();
       await expect(disconnectedCd48.setTriggerLevel(2.0)).rejects.toThrow(
-        'Not connected to CD48'
+        NotConnectedError
       );
     });
   });
@@ -559,9 +558,7 @@ describe('CD48', () => {
       const cd48 = new CD48();
       await cd48.connect();
 
-      mocks.mockReader.read.mockRejectedValueOnce(
-        new Error('Read error')
-      );
+      mocks.mockReader.read.mockRejectedValueOnce(new Error('Read error'));
 
       await expect(cd48.getVersion()).rejects.toThrow();
     });
@@ -570,9 +567,7 @@ describe('CD48', () => {
       const cd48 = new CD48();
       await cd48.connect();
 
-      mocks.mockWriter.write.mockRejectedValueOnce(
-        new Error('Write error')
-      );
+      mocks.mockWriter.write.mockRejectedValueOnce(new Error('Write error'));
 
       await expect(cd48.clearCounts()).rejects.toThrow();
     });
