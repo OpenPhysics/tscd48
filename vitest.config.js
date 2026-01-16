@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // Exclude E2E tests (run with Playwright) and benchmarks (run separately)
+    exclude: ['**/node_modules/**', '**/e2e/**', '**/*.bench.js'],
     environment: 'happy-dom',
     globals: true,
     coverage: {
