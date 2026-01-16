@@ -10,51 +10,54 @@ global.navigator = {
 const CD48Module = await import('../../cd48.js');
 const CD48 = CD48Module.default;
 
+// Helper to prevent dead code elimination - uses the value
+const use = (value) => {
+  if (value === undefined) throw new Error('unexpected');
+};
+
 describe('CD48 Performance Benchmarks', () => {
   describe('Instance Creation', () => {
     bench('create CD48 instance with defaults', () => {
-      new CD48();
+      use(new CD48());
     });
 
     bench('create CD48 instance with custom options', () => {
-      new CD48({ baudRate: 9600, commandDelay: 100 });
+      use(new CD48({ baudRate: 9600, commandDelay: 100 }));
     });
   });
 
   describe('Voltage Calculations', () => {
-    const cd48 = new CD48();
-
     bench('byteToVoltage conversion', () => {
-      cd48.byteToVoltage(128);
+      use(CD48.byteToVoltage(128));
     });
 
     bench('trigger level voltage clamping', () => {
       const voltage = Math.random() * 5;
       const clamped = Math.max(0, Math.min(4.08, voltage));
-      const byte = Math.round((clamped / 4.08) * 255);
+      use(Math.round((clamped / 4.08) * 255));
     });
 
     bench('DAC voltage clamping', () => {
       const voltage = Math.random() * 5;
       const clamped = Math.max(0, Math.min(4.08, voltage));
-      const byte = Math.round((clamped / 4.08) * 255);
+      use(Math.round((clamped / 4.08) * 255));
     });
   });
 
   describe('Count Parsing', () => {
-    const cd48 = new CD48();
-
     bench('parse count response (8 channels)', () => {
       const response = '12345 23456 34567 45678 56789 67890 78901 8912';
-      const counts = response.split(' ').map((c) => parseInt(c, 10));
+      use(response.split(' ').map((c) => parseInt(c, 10)));
     });
 
     bench('parse and validate count data', () => {
       const response = '12345 23456 34567 45678 56789 67890 78901 8912';
-      const counts = response.split(' ').map((c) => {
-        const num = parseInt(c, 10);
-        return isNaN(num) ? 0 : num;
-      });
+      use(
+        response.split(' ').map((c) => {
+          const num = parseInt(c, 10);
+          return isNaN(num) ? 0 : num;
+        })
+      );
     });
   });
 
@@ -69,7 +72,7 @@ describe('CD48 Performance Benchmarks', () => {
       const rb = nb / t;
       const rab = nab / t;
       const racc = ra * rb * t;
-      const rtrue = Math.max(0, rab - racc);
+      use(Math.max(0, rab - racc));
     });
 
     bench('calculate coincidence rate (full)', () => {
@@ -86,51 +89,57 @@ describe('CD48 Performance Benchmarks', () => {
       const accidental = na * nb * duration;
       const true_coincidence = Math.max(0, nab - accidental);
 
-      const result = {
+      use({
         ra: na,
         rb: nb,
         rab: nab,
         accidental,
         true_coincidence,
-      };
+      });
     });
   });
 
   describe('Command Formatting', () => {
     bench('format simple command', () => {
-      const cmd = 'VER\r';
+      use('VER\r');
     });
 
     bench('format channel command', () => {
       const channel = 3;
-      const cmd = `CH=${channel}\r`;
+      use(`CH=${channel}\r`);
     });
 
     bench('format voltage command', () => {
       const byte = 128;
-      const cmd = `THRS=${byte}\r`;
+      use(`THRS=${byte}\r`);
     });
   });
 
   describe('Data Validation', () => {
     bench('validate channel number (0-7)', () => {
-      const channel = 5;
+      const channel = Math.floor(Math.random() * 10);
       if (channel < 0 || channel > 7) {
-        throw new Error(`Invalid channel: ${channel}`);
+        use('invalid');
+      } else {
+        use('valid');
       }
     });
 
     bench('validate voltage range (0-4.08V)', () => {
-      const voltage = 2.5;
+      const voltage = Math.random() * 5;
       if (voltage < 0 || voltage > 4.08) {
-        throw new Error(`Invalid voltage: ${voltage}`);
+        use('invalid');
+      } else {
+        use('valid');
       }
     });
 
     bench('validate count array length', () => {
       const counts = [100, 200, 300, 400, 500, 600, 700, 800];
       if (counts.length !== 8) {
-        throw new Error('Expected 8 channel counts');
+        use('invalid');
+      } else {
+        use('valid');
       }
     });
   });
@@ -138,40 +147,42 @@ describe('CD48 Performance Benchmarks', () => {
   describe('String Operations', () => {
     bench('split space-separated values', () => {
       const str = '123 456 789 12 345 678 901 234';
-      str.split(' ');
+      use(str.split(' '));
     });
 
     bench('trim and split', () => {
       const str = ' 123 456 789 12 345 678 901 234 ';
-      str.trim().split(' ');
+      use(str.trim().split(' '));
     });
 
     bench('join values with space', () => {
       const values = [123, 456, 789, 12, 345, 678, 901, 234];
-      values.join(' ');
+      use(values.join(' '));
     });
   });
 
   describe('Array Operations', () => {
     bench('map array to integers', () => {
       const arr = ['123', '456', '789', '12', '345', '678', '901', '234'];
-      arr.map((n) => parseInt(n, 10));
+      use(arr.map((n) => parseInt(n, 10)));
     });
 
     bench('filter and map array', () => {
       const arr = ['123', '456', '789', 'NaN', '345', '678', '901', '234'];
-      arr.filter((n) => !isNaN(parseInt(n, 10))).map((n) => parseInt(n, 10));
+      use(
+        arr.filter((n) => !isNaN(parseInt(n, 10))).map((n) => parseInt(n, 10))
+      );
     });
 
     bench('reduce array sum', () => {
       const arr = [123, 456, 789, 12, 345, 678, 901, 234];
-      arr.reduce((sum, val) => sum + val, 0);
+      use(arr.reduce((sum, val) => sum + val, 0));
     });
   });
 
   describe('Object Operations', () => {
     bench('create count object', () => {
-      const counts = {
+      use({
         ch0: 123,
         ch1: 456,
         ch2: 789,
@@ -180,7 +191,7 @@ describe('CD48 Performance Benchmarks', () => {
         ch5: 678,
         ch6: 901,
         ch7: 234,
-      };
+      });
     });
 
     bench('destructure count object', () => {
@@ -194,7 +205,7 @@ describe('CD48 Performance Benchmarks', () => {
         ch6: 901,
         ch7: 234,
       };
-      const { ch0, ch1, ch4 } = counts;
+      use(counts.ch0 + counts.ch1 + counts.ch4);
     });
 
     bench('spread and modify object', () => {
@@ -203,7 +214,7 @@ describe('CD48 Performance Benchmarks', () => {
         ch1: 456,
         ch2: 789,
       };
-      const updated = { ...counts, ch0: 999 };
+      use({ ...counts, ch0: 999 });
     });
   });
 
@@ -211,7 +222,7 @@ describe('CD48 Performance Benchmarks', () => {
     bench(
       'create and resolve promise',
       async () => {
-        await Promise.resolve('test');
+        use(await Promise.resolve('test'));
       },
       { time: 1000 }
     );
@@ -219,7 +230,7 @@ describe('CD48 Performance Benchmarks', () => {
     bench(
       'promise with timeout',
       async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1));
+        use(await new Promise((resolve) => setTimeout(resolve, 1)));
       },
       { time: 1000 }
     );
@@ -227,10 +238,12 @@ describe('CD48 Performance Benchmarks', () => {
     bench(
       'promise race',
       async () => {
-        await Promise.race([
-          Promise.resolve('fast'),
-          new Promise((resolve) => setTimeout(() => resolve('slow'), 100)),
-        ]);
+        use(
+          await Promise.race([
+            Promise.resolve('fast'),
+            new Promise((resolve) => setTimeout(() => resolve('slow'), 100)),
+          ])
+        );
       },
       { time: 1000 }
     );

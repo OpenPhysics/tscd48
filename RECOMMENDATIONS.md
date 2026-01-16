@@ -7,7 +7,9 @@ This document contains recommendations to improve code quality, maintainability,
 ### 1. Add Essential Project Files
 
 #### .gitignore
+
 Create a `.gitignore` file to exclude common files:
+
 ```gitignore
 # Dependencies
 node_modules/
@@ -31,7 +33,9 @@ build/
 ```
 
 #### CONTRIBUTING.md
+
 Add contribution guidelines to help potential contributors understand:
+
 - How to set up the development environment
 - Coding standards and conventions
 - How to submit issues and pull requests
@@ -42,12 +46,14 @@ Add contribution guidelines to help potential contributors understand:
 Currently, there are no tests in the repository. Recommend adding:
 
 **Unit Tests for cd48.js**
+
 - Use Jest or Vitest for testing
 - Mock the Web Serial API for unit tests
 - Test all public methods of the CD48 class
 - Aim for >80% code coverage
 
 **Example structure:**
+
 ```
 tests/
   ├── unit/
@@ -58,6 +64,7 @@ tests/
 ```
 
 **Sample test setup in package.json:**
+
 ```json
 "devDependencies": {
   "vitest": "^1.0.0",
@@ -73,12 +80,15 @@ tests/
 ### 3. Add Code Quality Tools
 
 #### ESLint
+
 Set up ESLint for consistent code style:
+
 ```bash
 npm install --save-dev eslint
 ```
 
 Create `.eslintrc.json`:
+
 ```json
 {
   "env": {
@@ -97,7 +107,9 @@ Create `.eslintrc.json`:
 ```
 
 #### Prettier
+
 Add Prettier for code formatting:
+
 ```json
 "devDependencies": {
   "prettier": "^3.0.0"
@@ -113,6 +125,7 @@ Add Prettier for code formatting:
 Current workflow only deploys to GitHub Pages. Add a comprehensive CI workflow:
 
 **`.github/workflows/ci.yml`:**
+
 ```yaml
 name: CI
 
@@ -161,6 +174,7 @@ Generate API documentation from JSDoc comments:
 ```
 
 Create `jsdoc.json`:
+
 ```json
 {
   "source": {
@@ -187,6 +201,7 @@ Create `jsdoc.json`:
 Even though the library is written in JavaScript, provide TypeScript definitions for better IDE support:
 
 **cd48.d.ts:**
+
 ```typescript
 export interface CD48Options {
   baudRate?: number;
@@ -231,6 +246,7 @@ export class CD48 {
 ### 7. Add Error Handling Examples
 
 Create an examples/error-handling.html showing:
+
 - Connection timeout handling
 - Device disconnection recovery
 - Serial port permission errors
@@ -239,29 +255,37 @@ Create an examples/error-handling.html showing:
 ### 8. Add Browser Compatibility Polyfill Info
 
 Document and possibly provide polyfills or graceful degradation for:
+
 - Web Serial API availability check
 - Modern JavaScript features (async/await, etc.)
 
 ### 9. Security Enhancements
 
 #### Content Security Policy
+
 Add CSP headers for the web interface:
+
 ```html
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+/>
 ```
 
 #### Subresource Integrity
+
 If loading external resources, add SRI hashes.
 
 ### 10. Performance Optimizations
 
 **For cd48.js:**
+
 - Consider adding request queuing to prevent command overlap
 - Add connection pooling if multiple instances are needed
 - Implement caching for device settings queries
 
 **For index.html:**
+
 - Minify CSS and JavaScript for production
 - Consider lazy loading for the web interface
 - Add service worker for offline capability
@@ -277,12 +301,7 @@ Prepare for npm publishing:
   "description": "JavaScript interface for the CD48 Coincidence Counter",
   "main": "cd48.js",
   "types": "cd48.d.ts",
-  "files": [
-    "cd48.js",
-    "cd48.d.ts",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["cd48.js", "cd48.d.ts", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   }
@@ -292,6 +311,7 @@ Prepare for npm publishing:
 ### 12. Add Release Automation
 
 Create `.github/workflows/release.yml`:
+
 ```yaml
 name: Release
 
@@ -321,6 +341,7 @@ jobs:
 ### 13. Add More Examples
 
 Create additional example files:
+
 - `examples/continuous-monitoring.html` - Long-duration monitoring
 - `examples/multi-channel-display.html` - Visualize all channels
 - `examples/data-export.html` - Export data to CSV/JSON
@@ -329,6 +350,7 @@ Create additional example files:
 ### 14. Add Changelog
 
 Create `CHANGELOG.md` following Keep a Changelog format:
+
 ```markdown
 # Changelog
 
@@ -337,7 +359,9 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ## [0.1.0] - 2024-XX-XX
+
 ### Added
+
 - Initial release
 - Web Serial API interface
 - Full device control capabilities
@@ -346,6 +370,7 @@ All notable changes to this project will be documented in this file.
 ### 15. Add Issue Templates
 
 Create `.github/ISSUE_TEMPLATE/`:
+
 - `bug_report.md`
 - `feature_request.md`
 - `question.md`
@@ -353,22 +378,27 @@ Create `.github/ISSUE_TEMPLATE/`:
 ### 16. Add Pull Request Template
 
 Create `.github/pull_request_template.md`:
+
 ```markdown
 ## Description
+
 <!-- Describe your changes -->
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Documentation update
 - [ ] Performance improvement
 
 ## Testing
+
 - [ ] Tests pass locally
 - [ ] Added new tests for changes
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
@@ -382,6 +412,7 @@ Create `CODE_OF_CONDUCT.md` using Contributor Covenant.
 ### 18. Accessibility Improvements
 
 For the web interface:
+
 - Add ARIA labels to interactive elements
 - Ensure keyboard navigation works
 - Add focus indicators
@@ -391,12 +422,14 @@ For the web interface:
 ### 19. Add Internationalization (i18n)
 
 Support for multiple languages in the web interface:
+
 - English (default)
 - Consider adding structure for translations
 
 ### 20. Add Demo Mode
 
 Create a demo mode that simulates the device without requiring hardware:
+
 - Mock serial responses
 - Generate realistic count data
 - Allow users to try the interface without CD48 hardware
