@@ -27,6 +27,7 @@
     "validation.js",
     "analysis.js",
     "calibration.js",
+    "dev-utils.js",
     "dist",
     "README.md",
     "LICENSE",
@@ -34,7 +35,9 @@
   ],
   "scripts": {
     "start": "npx serve .",
-    "dev": "npx serve . --cors",
+    "dev": "vite",
+    "dev:legacy": "npx serve . --cors",
+    "preview": "vite preview",
     "build": "npm run build:unminified && npm run build:minified",
     "build:unminified": "vite build --config vite.config.build.js",
     "build:minified": "vite build --config vite.config.min.js",
