@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self';"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self';"
     />
     <title>CD48 Coincidence Counter</title>
     <style>
@@ -504,6 +504,251 @@
         font-family: monospace;
       }
 
+      /* Time Series Tab Improvements */
+      .tracking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .tracking-status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .tracking-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .tracking-indicator.inactive {
+        background: var(--accent);
+        color: var(--text-muted);
+      }
+
+      .tracking-indicator.active {
+        background: rgba(74, 222, 128, 0.2);
+        color: var(--success);
+        animation: pulse-tracking 2s infinite;
+      }
+
+      @keyframes pulse-tracking {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      .tracking-indicator .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .tracking-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .chart-section {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .chart-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .chart-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .chart-section-title span {
+        color: var(--highlight);
+      }
+
+      .chart-canvas-wrapper {
+        position: relative;
+        height: 350px;
+        background: rgba(15, 15, 30, 0.5);
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      .channel-toggle-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+      }
+
+      .channel-toggle {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 2px solid var(--accent);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .channel-toggle:hover {
+        border-color: var(--accent-light);
+        color: var(--text);
+      }
+
+      .channel-toggle.active {
+        border-color: var(--highlight);
+        background: rgba(233, 69, 96, 0.15);
+        color: var(--highlight);
+      }
+
+      .channel-toggle[data-channel='0'].active {
+        border-color: #e94560;
+        background: rgba(233, 69, 96, 0.15);
+        color: #e94560;
+      }
+      .channel-toggle[data-channel='1'].active {
+        border-color: #3b82f6;
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+      }
+      .channel-toggle[data-channel='2'].active {
+        border-color: #4ade80;
+        background: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+      }
+      .channel-toggle[data-channel='3'].active {
+        border-color: #fbbf24;
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+      }
+      .channel-toggle[data-channel='4'].active {
+        border-color: #a855f7;
+        background: rgba(168, 85, 247, 0.15);
+        color: #a855f7;
+      }
+      .channel-toggle[data-channel='5'].active {
+        border-color: #ec4899;
+        background: rgba(236, 72, 153, 0.15);
+        color: #ec4899;
+      }
+      .channel-toggle[data-channel='6'].active {
+        border-color: #14b8a6;
+        background: rgba(20, 184, 166, 0.15);
+        color: #14b8a6;
+      }
+      .channel-toggle[data-channel='7'].active {
+        border-color: #f97316;
+        background: rgba(249, 115, 22, 0.15);
+        color: #f97316;
+      }
+
+      .stats-dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .stat-tile {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .stat-tile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px var(--shadow);
+      }
+
+      .stat-tile .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+      }
+
+      .stat-tile .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+      }
+
+      .stat-tile .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .stat-tile.highlight .stat-value {
+        color: var(--highlight);
+      }
+
+      .stat-tile.success .stat-value {
+        color: var(--success);
+      }
+
+      .stat-tile.info .stat-value {
+        color: var(--info);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      .empty-state-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: var(--text);
+      }
+
+      .empty-state-text {
+        font-size: 0.95rem;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
       footer {
         text-align: center;
         margin-top: 30px;
@@ -798,40 +1043,55 @@
           role="tabpanel"
           aria-labelledby="tracking-tab"
         >
-          <div class="chart-container">
-            <div class="chart-header">
-              <h2 style="margin: 0">Count Rate vs Time</h2>
-              <div class="chart-controls">
-                <select
-                  id="timeWindow"
-                  onchange="updateTimeWindow()"
-                  aria-label="Select chart time window"
-                >
-                  <option value="60">Last 1 min</option>
-                  <option value="300" selected>Last 5 min</option>
-                  <option value="600">Last 10 min</option>
-                  <option value="1800">Last 30 min</option>
-                  <option value="3600">Last 1 hour</option>
-                </select>
-                <button
-                  class="btn btn-secondary"
-                  onclick="clearHistory()"
-                  aria-label="Clear chart history data"
-                >
-                  Clear History
-                </button>
-                <button
-                  class="btn btn-secondary"
-                  onclick="exportData()"
-                  aria-label="Export data to CSV file"
-                >
-                  Export CSV
-                </button>
+          <!-- Tracking Header with Status -->
+          <div class="tracking-header">
+            <div class="tracking-status">
+              <div class="tracking-indicator inactive" id="trackingIndicator">
+                <span class="dot"></span>
+                <span id="trackingStatusText">Not Recording</span>
+              </div>
+              <select
+                id="timeWindow"
+                onchange="updateTimeWindow()"
+                aria-label="Select chart time window"
+              >
+                <option value="60">Last 1 min</option>
+                <option value="300" selected>Last 5 min</option>
+                <option value="600">Last 10 min</option>
+                <option value="1800">Last 30 min</option>
+                <option value="3600">Last 1 hour</option>
+              </select>
+            </div>
+            <div class="tracking-actions">
+              <button
+                class="btn btn-secondary"
+                onclick="clearHistory()"
+                aria-label="Clear chart history data"
+              >
+                Clear
+              </button>
+              <button
+                class="btn btn-primary"
+                onclick="exportData()"
+                aria-label="Export data to CSV file"
+              >
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart Section -->
+          <div class="chart-section">
+            <div class="chart-section-header">
+              <div class="chart-section-title">
+                Count Rate <span>vs Time</span>
               </div>
             </div>
-            <div class="channel-selector" id="channelSelector">
+
+            <!-- Channel Toggles -->
+            <div class="channel-toggle-group" id="channelSelector">
               <button
-                class="channel-chip active"
+                class="channel-toggle active"
                 data-channel="0"
                 onclick="toggleChannel(0)"
                 aria-label="Toggle Channel 0 visibility"
@@ -840,7 +1100,7 @@
                 Ch0 (A)
               </button>
               <button
-                class="channel-chip active"
+                class="channel-toggle active"
                 data-channel="1"
                 onclick="toggleChannel(1)"
                 aria-label="Toggle Channel 1 visibility"
@@ -849,7 +1109,7 @@
                 Ch1 (B)
               </button>
               <button
-                class="channel-chip active"
+                class="channel-toggle active"
                 data-channel="2"
                 onclick="toggleChannel(2)"
                 aria-label="Toggle Channel 2 visibility"
@@ -858,7 +1118,7 @@
                 Ch2 (C)
               </button>
               <button
-                class="channel-chip active"
+                class="channel-toggle active"
                 data-channel="3"
                 onclick="toggleChannel(3)"
                 aria-label="Toggle Channel 3 visibility"
@@ -867,7 +1127,7 @@
                 Ch3 (D)
               </button>
               <button
-                class="channel-chip"
+                class="channel-toggle"
                 data-channel="4"
                 onclick="toggleChannel(4)"
                 aria-label="Toggle Channel 4 visibility"
@@ -876,7 +1136,7 @@
                 Ch4 (A+B)
               </button>
               <button
-                class="channel-chip"
+                class="channel-toggle"
                 data-channel="5"
                 onclick="toggleChannel(5)"
                 aria-label="Toggle Channel 5 visibility"
@@ -885,7 +1145,7 @@
                 Ch5 (A+C)
               </button>
               <button
-                class="channel-chip"
+                class="channel-toggle"
                 data-channel="6"
                 onclick="toggleChannel(6)"
                 aria-label="Toggle Channel 6 visibility"
@@ -894,7 +1154,7 @@
                 Ch6 (A+D)
               </button>
               <button
-                class="channel-chip"
+                class="channel-toggle"
                 data-channel="7"
                 onclick="toggleChannel(7)"
                 aria-label="Toggle Channel 7 visibility"
@@ -903,25 +1163,28 @@
                 Ch7 (B+C+D)
               </button>
             </div>
-            <div class="chart-wrapper">
+
+            <!-- Chart Canvas -->
+            <div class="chart-canvas-wrapper">
               <canvas id="rateChart"></canvas>
             </div>
           </div>
 
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-label">Total Data Points</div>
+          <!-- Stats Dashboard -->
+          <div class="stats-dashboard">
+            <div class="stat-tile info">
+              <div class="stat-label">Data Points</div>
               <div class="stat-value" id="totalPoints">0</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Recording Duration</div>
+            <div class="stat-tile">
+              <div class="stat-label">Duration</div>
               <div class="stat-value" id="duration">0s</div>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Average Rate (Ch0)</div>
+            <div class="stat-tile success">
+              <div class="stat-label">Avg Rate (Ch0)</div>
               <div class="stat-value" id="avgRate">0 Hz</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-tile highlight">
               <div class="stat-label">Peak Rate (Ch0)</div>
               <div class="stat-value" id="peakRate">0 Hz</div>
             </div>
@@ -949,6 +1212,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="cd48.js"></script>
     <script>
       // Global state
@@ -1236,18 +1500,24 @@
         const tabs = document.querySelectorAll('.tab');
         const contents = document.querySelectorAll('.tab-content');
 
-        tabs.forEach((t) => t.classList.remove('active'));
+        tabs.forEach((t) => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
         contents.forEach((c) => c.classList.remove('active'));
 
         if (tab === 'monitor') {
           tabs[0].classList.add('active');
+          tabs[0].setAttribute('aria-selected', 'true');
           document.getElementById('monitorTab').classList.add('active');
           if (trackingInterval) {
             clearInterval(trackingInterval);
             trackingInterval = null;
+            updateTrackingIndicator(false);
           }
         } else if (tab === 'tracking') {
           tabs[1].classList.add('active');
+          tabs[1].setAttribute('aria-selected', 'true');
           document.getElementById('trackingTab').classList.add('active');
           startTracking();
         }
@@ -1266,6 +1536,9 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+              duration: 0, // Disable animation for smoother real-time updates
+            },
             interaction: {
               mode: 'index',
               intersect: false,
@@ -1277,15 +1550,27 @@
                 labels: {
                   color: '#eee',
                   usePointStyle: true,
-                  padding: 15,
+                  pointStyle: 'circle',
+                  padding: 20,
+                  font: {
+                    size: 12,
+                    weight: '500',
+                  },
                 },
               },
               tooltip: {
-                backgroundColor: 'rgba(26, 31, 58, 0.9)',
+                backgroundColor: 'rgba(26, 31, 58, 0.95)',
                 titleColor: '#eee',
                 bodyColor: '#eee',
-                borderColor: '#e94560',
+                borderColor: 'rgba(233, 69, 96, 0.5)',
                 borderWidth: 1,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                  label: function (context) {
+                    return `${context.dataset.label}: ${context.parsed.y.toFixed(1)} Hz`;
+                  },
+                },
               },
             },
             scales: {
@@ -1295,27 +1580,51 @@
                   unit: 'second',
                   displayFormats: {
                     second: 'HH:mm:ss',
+                    minute: 'HH:mm',
                   },
+                  tooltipFormat: 'HH:mm:ss',
                 },
                 ticks: {
                   color: '#888',
+                  maxRotation: 0,
+                  autoSkip: true,
+                  maxTicksLimit: 10,
                 },
                 grid: {
-                  color: 'rgba(255, 255, 255, 0.1)',
+                  color: 'rgba(255, 255, 255, 0.05)',
+                  drawBorder: false,
+                },
+                title: {
+                  display: true,
+                  text: 'Time',
+                  color: '#888',
+                  font: {
+                    size: 12,
+                  },
                 },
               },
               y: {
                 beginAtZero: true,
                 ticks: {
                   color: '#888',
+                  callback: function (value) {
+                    if (value >= 1000000)
+                      return (value / 1000000).toFixed(1) + 'M';
+                    if (value >= 1000) return (value / 1000).toFixed(1) + 'k';
+                    return value;
+                  },
                 },
                 grid: {
-                  color: 'rgba(255, 255, 255, 0.1)',
+                  color: 'rgba(255, 255, 255, 0.05)',
+                  drawBorder: false,
                 },
                 title: {
                   display: true,
                   text: 'Count Rate (Hz)',
-                  color: '#eee',
+                  color: '#888',
+                  font: {
+                    size: 12,
+                  },
                 },
               },
             },
@@ -1327,12 +1636,29 @@
       function startTracking() {
         if (!cd48 || !cd48.isConnected()) {
           log('Connect to device first to start tracking', 'error');
+          updateTrackingIndicator(false);
           return;
         }
 
         if (!trackingInterval) {
           trackingInterval = setInterval(recordDataPoint, 1000);
+          updateTrackingIndicator(true);
           log('Time series tracking started');
+        }
+      }
+
+      function updateTrackingIndicator(active) {
+        const indicator = document.getElementById('trackingIndicator');
+        const statusText = document.getElementById('trackingStatusText');
+
+        if (active) {
+          indicator.classList.remove('inactive');
+          indicator.classList.add('active');
+          statusText.textContent = 'Recording';
+        } else {
+          indicator.classList.remove('active');
+          indicator.classList.add('inactive');
+          statusText.textContent = 'Not Recording';
         }
       }
 
@@ -1341,6 +1667,7 @@
           if (trackingInterval) {
             clearInterval(trackingInterval);
             trackingInterval = null;
+            updateTrackingIndicator(false);
           }
           return;
         }
@@ -1419,17 +1746,22 @@
           (item) => trackingData.timestamps[item.index]
         );
 
-        // Create datasets for visible channels
+        // Create datasets for visible channels with improved styling
         const datasets = visibleChannels.map((ch) => ({
           label: channelNames[ch],
           data: filteredIndices.map(
             (item) => trackingData.rates[ch][item.index]
           ),
           borderColor: channelColors[ch],
-          backgroundColor: channelColors[ch] + '33',
+          backgroundColor: channelColors[ch] + '15',
           borderWidth: 2,
           pointRadius: 0,
-          tension: 0.4,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: channelColors[ch],
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          tension: 0.3,
+          fill: true,
         }));
 
         chart.data.labels = labels;
@@ -1471,15 +1803,19 @@
       }
 
       function toggleChannel(ch) {
-        const chip = document.querySelector(`[data-channel="${ch}"]`);
+        const chip = document.querySelector(
+          `.channel-toggle[data-channel="${ch}"]`
+        );
         const index = visibleChannels.indexOf(ch);
 
         if (index > -1) {
           visibleChannels.splice(index, 1);
           chip.classList.remove('active');
+          chip.setAttribute('aria-pressed', 'false');
         } else {
           visibleChannels.push(ch);
           chip.classList.add('active');
+          chip.setAttribute('aria-pressed', 'true');
         }
 
         updateChart();
