@@ -230,7 +230,10 @@ export class MockCD48 {
 
     this.commandCount++;
 
-    if (this.disconnectAfter !== null && this.commandCount >= this.disconnectAfter) {
+    if (
+      this.disconnectAfter !== null &&
+      this.commandCount > this.disconnectAfter
+    ) {
       this.connected = false;
       throw new Error('Device disconnected unexpectedly');
     }
@@ -257,7 +260,9 @@ export class MockCD48 {
       }
 
       // Increment coincidence counts (less frequent)
-      this.coincidenceCounts += Math.floor(Math.random() * this.incrementRate * 0.1);
+      this.coincidenceCounts += Math.floor(
+        Math.random() * this.incrementRate * 0.1
+      );
     }, 100);
   }
 
