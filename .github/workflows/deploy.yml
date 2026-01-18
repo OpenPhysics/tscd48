@@ -44,10 +44,6 @@ jobs:
 
           # Copy main files
           cp index.html _site/
-          cp cd48.js _site/
-          cp cd48.d.ts _site/
-          cp errors.js _site/
-          cp validation.js _site/
           cp README.md _site/
           cp LICENSE _site/
           cp TROUBLESHOOTING.md _site/
