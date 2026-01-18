@@ -118,7 +118,7 @@ export class DevLogger {
       success: '#10b981',
     };
     this.levels = { debug: 0, info: 1, warn: 2, error: 3 };
-    this.minLevel = this.levels[level] ?? 0;
+    this.minLevel = this.levels[level];
   }
 
   /**
@@ -262,7 +262,7 @@ export class ErrorOverlay {
    * Create overlay DOM element
    */
   private createOverlay(): void {
-    if (this.overlay) return;
+    if (this.overlay !== null) return;
 
     this.overlay = document.createElement('div');
     this.overlay.id = 'dev-error-overlay';
@@ -309,13 +309,13 @@ export class ErrorOverlay {
 
         <div style="background: #1a1f3a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
           <div style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">
-            ${error.name || 'Error'}
+            ${error.name !== '' ? error.name : 'Error'}
           </div>
           <div style="color: #eee; font-size: 16px; margin-bottom: 15px;">
             ${this.escapeHtml(error.message)}
           </div>
           ${
-            error.stack
+            error.stack !== undefined && error.stack !== ''
               ? `
             <details style="margin-top: 15px;">
               <summary style="cursor: pointer; color: #3b82f6; user-select: none;">
@@ -365,7 +365,7 @@ export class ErrorOverlay {
       </div>
     `;
 
-    if (this.overlay) {
+    if (this.overlay !== null) {
       this.overlay.innerHTML = errorHTML;
       this.overlay.style.display = 'block';
     }
@@ -384,7 +384,7 @@ export class ErrorOverlay {
    * Hide error overlay
    */
   hide(): void {
-    if (this.overlay) {
+    if (this.overlay !== null) {
       this.overlay.style.display = 'none';
     }
   }
@@ -443,7 +443,7 @@ export class PerformanceMonitor {
     delete this.marks[name];
 
     const existingMetrics = this.metrics[name];
-    if (!existingMetrics) {
+    if (existingMetrics === undefined) {
       this.metrics[name] = [];
     }
     this.metrics[name]?.push(duration);
@@ -458,7 +458,7 @@ export class PerformanceMonitor {
    */
   getStats(name: string): PerformanceStats | null {
     const values = this.metrics[name];
-    if (!values || values.length === 0) {
+    if (values === undefined || values.length === 0) {
       return null;
     }
 

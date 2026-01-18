@@ -115,6 +115,19 @@ export default [
         { prefer: 'type-imports' },
       ],
       '@typescript-eslint/prefer-readonly': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/strict-boolean-expressions': [
+        'warn',
+        {
+          allowString: false,
+          allowNumber: false,
+          allowNullableObject: false,
+          allowNullableBoolean: false,
+          allowNullableString: false,
+          allowNullableNumber: false,
+          allowAny: false,
+        },
+      ],
       '@typescript-eslint/naming-convention': [
         'warn',
         {

@@ -300,11 +300,11 @@ export class CalibrationProfile {
       description: data.description,
       date: new Date(data.date),
     });
-    profile.voltages = data.voltages ?? {};
-    profile.thresholds = data.thresholds ?? {};
-    profile.gains = data.gains ?? {};
-    profile.offsets = data.offsets ?? {};
-    profile.metadata = data.metadata ?? {};
+    profile.voltages = data.voltages;
+    profile.thresholds = data.thresholds;
+    profile.gains = data.gains;
+    profile.offsets = data.offsets;
+    profile.metadata = data.metadata;
     return profile;
   }
 }
@@ -337,7 +337,7 @@ export class CalibrationStorage {
   load(name: string): CalibrationProfile | null {
     const profiles = this.loadAll();
     const profileData = profiles[name];
-    if (profileData) {
+    if (profileData !== undefined) {
       return CalibrationProfile.fromJSON(profileData);
     }
     return null;
@@ -349,7 +349,7 @@ export class CalibrationStorage {
    */
   loadAll(): Record<string, CalibrationProfileJSON> {
     const data = localStorage.getItem(this.storageKey);
-    if (!data) return {};
+    if (data === null || data === '') return {};
     try {
       return parseCalibrationProfiles(data);
     } catch {
@@ -630,7 +630,7 @@ export class CalibrationWizard {
    * @param name - Profile name
    */
   save(name?: string): void {
-    if (name) this.profile.name = name;
+    if (name !== undefined && name !== '') this.profile.name = name;
     this.storage.save(this.profile);
   }
 
@@ -641,7 +641,7 @@ export class CalibrationWizard {
    */
   load(name: string): CalibrationProfile | null {
     const profile = this.storage.load(name);
-    if (profile) {
+    if (profile !== null) {
       this.profile = profile;
     }
     return profile;

@@ -248,7 +248,7 @@ class CD48 {
    * Set up connection streams after port is opened.
    */
   private async _setupConnection(): Promise<void> {
-    if (!this.port) {
+    if (this.port === null) {
       throw new ConnectionError('No port available');
     }
 
@@ -257,7 +257,7 @@ class CD48 {
     // Set up reader and writer
     const textDecoder = new TextDecoderStream();
     const readable = this.port.readable;
-    if (!readable) {
+    if (readable === null) {
       throw new ConnectionError('Port readable stream not available');
     }
     /**
@@ -272,7 +272,7 @@ class CD48 {
 
     const textEncoder = new TextEncoderStream();
     const writable = this.port.writable;
-    if (!writable) {
+    if (writable === null) {
       throw new ConnectionError('Port writable stream not available');
     }
     this.writableStreamClosed = textEncoder.readable.pipeTo(
@@ -306,14 +306,14 @@ class CD48 {
         return info.usbVendorId === 0x04b4;
       });
 
-      if (!cd48Port) {
+      if (cd48Port === undefined) {
         throw new ConnectionError('No previously connected CD48 device found');
       }
 
       this.port = cd48Port;
       await this._setupConnection();
 
-      if (this._onReconnect) {
+      if (this._onReconnect !== null) {
         this._onReconnect();
       }
 
@@ -351,10 +351,10 @@ class CD48 {
    * Clean up connection resources.
    */
   private async _cleanupConnection(): Promise<void> {
-    if (this.reader) {
+    if (this.reader !== null) {
       try {
         await this.reader.cancel();
-        if (this.readableStreamClosed) {
+        if (this.readableStreamClosed !== null) {
           await this.readableStreamClosed.catch(() => {});
         }
       } catch {
@@ -362,10 +362,10 @@ class CD48 {
       }
       this.reader = null;
     }
-    if (this.writer) {
+    if (this.writer !== null) {
       try {
         await this.writer.close();
-        if (this.writableStreamClosed) {
+        if (this.writableStreamClosed !== null) {
           await this.writableStreamClosed;
         }
       } catch {
@@ -373,7 +373,7 @@ class CD48 {
       }
       this.writer = null;
     }
-    if (this.port) {
+    if (this.port !== null) {
       try {
         await this.port.close();
       } catch {
@@ -388,7 +388,7 @@ class CD48 {
    */
   async disconnect(): Promise<void> {
     await this._cleanupConnection();
-    if (this._onDisconnect) {
+    if (this._onDisconnect !== null) {
       this._onDisconnect();
     }
   }
@@ -444,7 +444,7 @@ class CD48 {
     await this._applyRateLimit();
 
     try {
-      if (!this.writer || !this.reader) {
+      if (this.writer === null || this.reader === null) {
         throw new NotConnectedError('sendCommand');
       }
 
@@ -472,7 +472,7 @@ class CD48 {
         const result = await Promise.race([readPromise, timeoutPromise]);
 
         if (result.done) break;
-        if (result.value) response += result.value;
+        if (result.value !== '') response += result.value;
 
         // Check if we have a complete response
         if (response.includes('\r') || response.includes('\n')) {
@@ -481,7 +481,7 @@ class CD48 {
       }
 
       // Check if we timed out
-      if (Date.now() - startTime >= timeout && !response) {
+      if (Date.now() - startTime >= timeout && response === '') {
         throw new CommandTimeoutError(command, timeout);
       }
 
