@@ -135,7 +135,7 @@ export const Statistics = {
    * @returns Regression results
    */
   linearRegression(x: number[], y: number[]): LinearRegressionResult {
-    if (!x || !y || x.length !== y.length || x.length === 0) {
+    if (x?.length !== y?.length || x.length === 0) {
       return { slope: 0, intercept: 0, r2: 0 };
     }
 

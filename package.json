@@ -7,6 +7,17 @@
   "module": "./dist/cd48.esm.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
