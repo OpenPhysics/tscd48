@@ -5,6 +5,7 @@
 
 import {
   LOGGER_COLORS,
+  LOG_LEVELS,
   LOGGER_TIMESTAMP_PADDING,
   ERROR_OVERLAY_Z_INDEX,
   ERROR_OVERLAY_FONT_SIZE,
@@ -124,7 +125,7 @@ export class DevLogger {
     this.prefix = options.prefix ?? '[CD48]';
     this.timestamps = options.timestamps !== false;
     this.colors = LOGGER_COLORS;
-    this.levels = { debug: 0, info: 1, warn: 2, error: 3 };
+    this.levels = LOG_LEVELS;
     this.minLevel = this.levels[level];
   }
 

@@ -165,6 +165,14 @@ export const LOGGER_COLORS = {
   success: '#10b981',
 } as const satisfies LoggerColors;
 
+/** Log level priority values (lower = more verbose) */
+export const LOG_LEVELS = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+} as const satisfies Record<'debug' | 'info' | 'warn' | 'error', number>;
+
 /** Padding for milliseconds in timestamp display */
 export const LOGGER_TIMESTAMP_PADDING = 3;
 
