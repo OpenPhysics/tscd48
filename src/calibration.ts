@@ -117,48 +117,51 @@ export interface CalibrationPoint {
  * Calibration coefficients
  */
 export interface CalibrationCoefficients {
-  gain: number;
-  offset: number;
+  readonly gain: number;
+  readonly offset: number;
 }
 
 /**
  * Calibration error statistics
  */
 export interface CalibrationErrorStats {
-  mean: number;
-  std: number;
-  max: number;
-  errors: number[];
+  readonly mean: number;
+  readonly std: number;
+  readonly max: number;
+  readonly errors: ReadonlyArray<number>;
 }
 
 /**
  * Optimal threshold result
  */
 export interface OptimalThresholdResult {
-  optimal: number;
-  results: Array<{ threshold: number; rate: number }>;
+  readonly optimal: number;
+  readonly results: ReadonlyArray<{
+    readonly threshold: number;
+    readonly rate: number;
+  }>;
 }
 
 /**
  * Calibration validation result
  */
 export interface CalibrationValidationResult {
-  valid: boolean;
-  issues: string[];
-  warnings: string[];
+  readonly valid: boolean;
+  readonly issues: ReadonlyArray<string>;
+  readonly warnings: ReadonlyArray<string>;
 }
 
 /**
  * Calibration report
  */
 export interface CalibrationReport {
-  profile: CalibrationProfileJSON;
-  summary: {
-    name: string;
-    date: Date;
-    channelsCalibrated: number;
-    hasGainCalibration: boolean;
-    hasThresholdCalibration: boolean;
+  readonly profile: CalibrationProfileJSON;
+  readonly summary: {
+    readonly name: string;
+    readonly date: Date;
+    readonly channelsCalibrated: number;
+    readonly hasGainCalibration: boolean;
+    readonly hasThresholdCalibration: boolean;
   };
 }
 
@@ -191,124 +194,11 @@ export class CalibrationProfile {
   }
 
   /**
-   * Set voltage calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @param voltage - Calibrated voltage value
-   */
-  setVoltage(channel: number, voltage: number): void {
-    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
-      throw new Error('Channel must be between 0 and 7');
-    }
-    this.voltages[channel] = voltage;
-  }
-
-  /**
-   * Get voltage calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @returns Calibrated voltage or null if not set
-   */
-  getVoltage(channel: number): number | null {
-    return this.voltages[channel] ?? null;
-  }
-
-  /**
-   * Set threshold calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @param threshold - Threshold value
-   */
-  setThreshold(channel: number, threshold: number): void {
-    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
-      throw new Error('Channel must be between 0 and 7');
-    }
-    this.thresholds[channel] = threshold;
-  }
-
-  /**
-   * Get threshold calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @returns Threshold value or null if not set
-   */
-  getThreshold(channel: number): number | null {
-    return this.thresholds[channel] ?? null;
-  }
-
-  /**
-   * Set gain calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @param gain - Gain value
-   */
-  setGain(channel: number, gain: number): void {
-    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
-      throw new Error('Channel must be between 0 and 7');
-    }
-    this.gains[channel] = gain;
-  }
-
-  /**
-   * Get gain calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @returns Gain value or null if not set
-   */
-  getGain(channel: number): number | null {
-    return this.gains[channel] ?? null;
-  }
-
-  /**
-   * Set offset calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @param offset - Offset value
-   */
-  setOffset(channel: number, offset: number): void {
-    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
-      throw new Error('Channel must be between 0 and 7');
-    }
-    this.offsets[channel] = offset;
-  }
-
-  /**
-   * Get offset calibration for a channel
-   * @param channel - Channel number (0-7)
-   * @returns Offset value or null if not set
-   */
-  getOffset(channel: number): number | null {
-    return this.offsets[channel] ?? null;
-  }
-
-  /**
-   * Apply calibration to raw count data
-   * @param channel - Channel number (0-7)
-   * @param rawCount - Raw count value
-   * @returns Calibrated count value
-   */
-  applyCounts(channel: number, rawCount: number): number {
-    const gain = this.gains[channel] ?? 1;
-    const offset = this.offsets[channel] ?? 0;
-    return rawCount * gain + offset;
-  }
-
-  /**
-   * Export profile to JSON
-   * @returns Profile data
-   */
-  toJSON(): CalibrationProfileJSON {
-    return {
-      name: this.name,
-      description: this.description,
-      date: this.date.toISOString(),
-      voltages: this.voltages,
-      thresholds: this.thresholds,
-      gains: this.gains,
-      offsets: this.offsets,
-      metadata: this.metadata,
-    };
-  }
-
-  /**
    * Import profile from JSON
    * @param data - Profile data
    * @returns New profile instance
    */
-  static fromJSON(data: CalibrationProfileJSON): CalibrationProfile {
+  public static fromJSON(data: CalibrationProfileJSON): CalibrationProfile {
     const profile = new CalibrationProfile({
       name: data.name,
       description: data.description,
@@ -320,6 +210,119 @@ export class CalibrationProfile {
     profile.offsets = data.offsets;
     profile.metadata = data.metadata;
     return profile;
+  }
+
+  /**
+   * Set voltage calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @param voltage - Calibrated voltage value
+   */
+  public setVoltage(channel: number, voltage: number): void {
+    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
+      throw new Error('Channel must be between 0 and 7');
+    }
+    this.voltages[channel] = voltage;
+  }
+
+  /**
+   * Get voltage calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @returns Calibrated voltage or null if not set
+   */
+  public getVoltage(channel: number): number | null {
+    return this.voltages[channel] ?? null;
+  }
+
+  /**
+   * Set threshold calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @param threshold - Threshold value
+   */
+  public setThreshold(channel: number, threshold: number): void {
+    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
+      throw new Error('Channel must be between 0 and 7');
+    }
+    this.thresholds[channel] = threshold;
+  }
+
+  /**
+   * Get threshold calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @returns Threshold value or null if not set
+   */
+  public getThreshold(channel: number): number | null {
+    return this.thresholds[channel] ?? null;
+  }
+
+  /**
+   * Set gain calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @param gain - Gain value
+   */
+  public setGain(channel: number, gain: number): void {
+    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
+      throw new Error('Channel must be between 0 and 7');
+    }
+    this.gains[channel] = gain;
+  }
+
+  /**
+   * Get gain calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @returns Gain value or null if not set
+   */
+  public getGain(channel: number): number | null {
+    return this.gains[channel] ?? null;
+  }
+
+  /**
+   * Set offset calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @param offset - Offset value
+   */
+  public setOffset(channel: number, offset: number): void {
+    if (channel < CHANNEL_MIN || channel > CHANNEL_MAX) {
+      throw new Error('Channel must be between 0 and 7');
+    }
+    this.offsets[channel] = offset;
+  }
+
+  /**
+   * Get offset calibration for a channel
+   * @param channel - Channel number (0-7)
+   * @returns Offset value or null if not set
+   */
+  public getOffset(channel: number): number | null {
+    return this.offsets[channel] ?? null;
+  }
+
+  /**
+   * Apply calibration to raw count data
+   * @param channel - Channel number (0-7)
+   * @param rawCount - Raw count value
+   * @returns Calibrated count value
+   */
+  public applyCounts(channel: number, rawCount: number): number {
+    const gain = this.gains[channel] ?? 1;
+    const offset = this.offsets[channel] ?? 0;
+    return rawCount * gain + offset;
+  }
+
+  /**
+   * Export profile to JSON
+   * @returns Profile data
+   */
+  public toJSON(): CalibrationProfileJSON {
+    return {
+      name: this.name,
+      description: this.description,
+      date: this.date.toISOString(),
+      voltages: this.voltages,
+      thresholds: this.thresholds,
+      gains: this.gains,
+      offsets: this.offsets,
+      metadata: this.metadata,
+    };
   }
 }
 
@@ -337,7 +340,7 @@ export class CalibrationStorage {
    * Save a calibration profile
    * @param profile - Profile to save
    */
-  save(profile: CalibrationProfile): void {
+  public save(profile: CalibrationProfile): void {
     const profiles = this.loadAll();
     profiles[profile.name] = profile.toJSON();
     localStorage.setItem(this.storageKey, JSON.stringify(profiles));
@@ -348,7 +351,7 @@ export class CalibrationStorage {
    * @param name - Profile name
    * @returns Profile or null if not found
    */
-  load(name: string): CalibrationProfile | null {
+  public load(name: string): CalibrationProfile | null {
     const profiles = this.loadAll();
     const profileData = profiles[name];
     if (profileData !== undefined) {
@@ -361,7 +364,7 @@ export class CalibrationStorage {
    * Load all calibration profiles
    * @returns All profiles as plain objects
    */
-  loadAll(): Record<string, CalibrationProfileJSON> {
+  public loadAll(): Record<string, CalibrationProfileJSON> {
     const data = localStorage.getItem(this.storageKey);
     if (data === null || data === '') return {};
     try {
@@ -376,7 +379,7 @@ export class CalibrationStorage {
    * Get list of all profile names
    * @returns Array of profile names
    */
-  listProfiles(): string[] {
+  public listProfiles(): string[] {
     return Object.keys(this.loadAll());
   }
 
@@ -384,16 +387,18 @@ export class CalibrationStorage {
    * Delete a calibration profile
    * @param name - Profile name
    */
-  delete(name: string): void {
-    const profiles = this.loadAll();
-    delete profiles[name];
+  public delete(name: string): void {
+    const allProfiles = this.loadAll();
+    const profiles = Object.fromEntries(
+      Object.entries(allProfiles).filter(([key]) => key !== name)
+    );
     localStorage.setItem(this.storageKey, JSON.stringify(profiles));
   }
 
   /**
    * Clear all calibration profiles
    */
-  clear(): void {
+  public clear(): void {
     localStorage.removeItem(this.storageKey);
   }
 
@@ -401,7 +406,7 @@ export class CalibrationStorage {
    * Export all profiles to JSON string
    * @returns JSON string of all profiles
    */
-  export(): string {
+  public export(): string {
     return JSON.stringify(this.loadAll(), null, JSON_INDENT_SPACES);
   }
 
@@ -411,7 +416,7 @@ export class CalibrationStorage {
    * @param merge - Merge with existing profiles
    * @throws Error if JSON format is invalid
    */
-  import(jsonString: string, merge = false): void {
+  public import(jsonString: string, merge = false): void {
     const imported = parseCalibrationProfiles(jsonString);
     if (merge) {
       const existing = this.loadAll();
@@ -433,7 +438,7 @@ export class VoltageCalibration {
    * @param point2 - Second calibration point
    * @returns Calibration coefficients
    */
-  static twoPoint(
+  public static twoPoint(
     point1: CalibrationPoint,
     point2: CalibrationPoint
   ): CalibrationCoefficients {
@@ -453,7 +458,7 @@ export class VoltageCalibration {
    * @param offset - Offset coefficient
    * @returns Calibrated value
    */
-  static apply(raw: number, gain: number, offset: number): number {
+  public static apply(raw: number, gain: number, offset: number): number {
     return raw * gain + offset;
   }
 
@@ -462,7 +467,9 @@ export class VoltageCalibration {
    * @param points - Calibration points
    * @returns Calibration coefficients
    */
-  static multiPoint(points: CalibrationPoint[]): CalibrationCoefficients {
+  public static multiPoint(
+    points: CalibrationPoint[]
+  ): CalibrationCoefficients {
     if (points.length < MIN_CALIBRATION_POINTS) {
       throw new Error(
         `At least ${MIN_CALIBRATION_POINTS} calibration points required`
@@ -500,7 +507,7 @@ export class VoltageCalibration {
    * @param offset - Offset coefficient
    * @returns Error statistics
    */
-  static calculateError(
+  public static calculateError(
     points: CalibrationPoint[],
     gain: number,
     offset: number
@@ -524,7 +531,6 @@ export class VoltageCalibration {
  * Calibration wizard helper class
  */
 export class CalibrationWizard {
-  public readonly cd48: CD48;
   public profile: CalibrationProfile;
   public readonly storage: CalibrationStorage;
   public currentStep: number;
@@ -534,8 +540,7 @@ export class CalibrationWizard {
    * Create a calibration wizard
    * @param cd48 - CD48 device instance
    */
-  constructor(cd48: CD48) {
-    this.cd48 = cd48;
+  constructor(public readonly cd48: CD48) {
     this.profile = new CalibrationProfile();
     this.storage = new CalibrationStorage();
     this.currentStep = 0;
@@ -548,7 +553,7 @@ export class CalibrationWizard {
    * @param duration - Measurement duration in seconds
    * @returns Average count rate
    */
-  async measureChannelRate(
+  public async measureChannelRate(
     channel: number,
     duration = DEFAULT_CALIBRATION_DURATION
   ): Promise<number> {
@@ -566,7 +571,7 @@ export class CalibrationWizard {
    * @param duration - Measurement duration
    * @returns Background rates for each channel
    */
-  async measureBackground(
+  public async measureBackground(
     channels: number[],
     duration = DEFAULT_BACKGROUND_DURATION
   ): Promise<Record<number, number>> {
@@ -586,7 +591,10 @@ export class CalibrationWizard {
    * @param channel - Channel number
    * @param knownVoltage - Known voltage value
    */
-  async calibrateVoltage(channel: number, knownVoltage: number): Promise<void> {
+  public async calibrateVoltage(
+    channel: number,
+    knownVoltage: number
+  ): Promise<void> {
     this.profile.setVoltage(channel, knownVoltage);
     this.profile.metadata[`voltage_calibrated_ch${channel}`] = true;
   }
@@ -598,7 +606,7 @@ export class CalibrationWizard {
    * @param duration - Measurement duration
    * @returns Calculated gain
    */
-  async calibrateGain(
+  public async calibrateGain(
     channel: number,
     referenceRate: number,
     duration = DEFAULT_BACKGROUND_DURATION
@@ -616,7 +624,7 @@ export class CalibrationWizard {
    * @param duration - Measurement duration per threshold
    * @returns Optimal threshold and rate data
    */
-  async findOptimalThreshold(
+  public async findOptimalThreshold(
     channel: number,
     testThresholds: number[],
     duration = DEFAULT_CALIBRATION_DURATION
@@ -651,7 +659,7 @@ export class CalibrationWizard {
    * Save current calibration profile
    * @param name - Profile name
    */
-  save(name?: string): void {
+  public save(name?: string): void {
     if (name !== undefined && name !== '') this.profile.name = name;
     this.storage.save(this.profile);
   }
@@ -661,7 +669,7 @@ export class CalibrationWizard {
    * @param name - Profile name
    * @returns Loaded profile
    */
-  load(name: string): CalibrationProfile | null {
+  public load(name: string): CalibrationProfile | null {
     const profile = this.storage.load(name);
     if (profile !== null) {
       this.profile = profile;
@@ -673,7 +681,7 @@ export class CalibrationWizard {
    * Generate calibration report
    * @returns Calibration report data
    */
-  generateReport(): CalibrationReport {
+  public generateReport(): CalibrationReport {
     return {
       profile: this.profile.toJSON(),
       summary: {
@@ -691,7 +699,7 @@ export class CalibrationWizard {
    * Validate calibration profile
    * @returns Validation results
    */
-  validate(): CalibrationValidationResult {
+  public validate(): CalibrationValidationResult {
     const issues: string[] = [];
     const warnings: string[] = [];
 
