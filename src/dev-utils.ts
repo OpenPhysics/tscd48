@@ -3,6 +3,19 @@
  * @module dev-utils
  */
 
+import {
+  LOGGER_COLORS,
+  LOGGER_TIMESTAMP_PADDING,
+  ERROR_OVERLAY_Z_INDEX,
+  ERROR_OVERLAY_FONT_SIZE,
+  ERROR_OVERLAY_TITLE_FONT_SIZE,
+  ERROR_OVERLAY_PADDING,
+  ERROR_OVERLAY_PADDING_TOP,
+  ERROR_OVERLAY_BORDER_RADIUS,
+  PERCENTILE_95,
+  PERCENTILE_99,
+} from './constants.js';
+
 /**
  * Log level type
  */
@@ -110,15 +123,9 @@ export class DevLogger {
     const level = options.level ?? 'debug';
     this.prefix = options.prefix ?? '[CD48]';
     this.timestamps = options.timestamps !== false;
-    this.colors = {
-      debug: '#6366f1',
-      info: '#3b82f6',
-      warn: '#f59e0b',
-      error: '#ef4444',
-      success: '#10b981',
-    };
+    this.colors = LOGGER_COLORS;
     this.levels = { debug: 0, info: 1, warn: 2, error: 3 };
-    this.minLevel = this.levels[level] ?? 0;
+    this.minLevel = this.levels[level];
   }
 
   /**
@@ -127,7 +134,7 @@ export class DevLogger {
   private getTimestamp(): string {
     if (!this.timestamps) return '';
     const now = new Date();
-    return `[${now.toLocaleTimeString()}.${now.getMilliseconds().toString().padStart(3, '0')}]`;
+    return `[${now.toLocaleTimeString()}.${now.getMilliseconds().toString().padStart(LOGGER_TIMESTAMP_PADDING, '0')}]`;
   }
 
   /**
@@ -262,7 +269,7 @@ export class ErrorOverlay {
    * Create overlay DOM element
    */
   private createOverlay(): void {
-    if (this.overlay) return;
+    if (this.overlay !== null) return;
 
     this.overlay = document.createElement('div');
     this.overlay.id = 'dev-error-overlay';
@@ -275,10 +282,10 @@ export class ErrorOverlay {
       background: rgba(0, 0, 0, 0.95);
       color: #fff;
       font-family: 'Courier New', monospace;
-      font-size: 14px;
-      z-index: 999999;
+      font-size: ${ERROR_OVERLAY_FONT_SIZE}px;
+      z-index: ${ERROR_OVERLAY_Z_INDEX};
       overflow: auto;
-      padding: 20px;
+      padding: ${ERROR_OVERLAY_PADDING}px;
       display: none;
     `;
 
@@ -296,26 +303,26 @@ export class ErrorOverlay {
 
     const errorHTML = `
       <div style="max-width: 1200px; margin: 0 auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h1 style="color: #ef4444; margin: 0; font-size: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: ${ERROR_OVERLAY_PADDING}px;">
+          <h1 style="color: #ef4444; margin: 0; font-size: ${ERROR_OVERLAY_TITLE_FONT_SIZE}px;">
             Runtime Error
           </h1>
           <button onclick="this.getRootNode().host?.parentElement?.style.display='none'"
-                  style="background: #ef4444; color: white; border: none; padding: 10px 20px;
-                         border-radius: 6px; cursor: pointer; font-size: 14px;">
+                  style="background: #ef4444; color: white; border: none; padding: ${ERROR_OVERLAY_PADDING_TOP}px ${ERROR_OVERLAY_PADDING}px;
+                         border-radius: ${ERROR_OVERLAY_BORDER_RADIUS}px; cursor: pointer; font-size: ${ERROR_OVERLAY_FONT_SIZE}px;">
             Close (ESC)
           </button>
         </div>
 
         <div style="background: #1a1f3a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
           <div style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">
-            ${error.name || 'Error'}
+            ${error.name !== '' ? error.name : 'Error'}
           </div>
           <div style="color: #eee; font-size: 16px; margin-bottom: 15px;">
             ${this.escapeHtml(error.message)}
           </div>
           ${
-            error.stack
+            error.stack !== undefined && error.stack !== ''
               ? `
             <details style="margin-top: 15px;">
               <summary style="cursor: pointer; color: #3b82f6; user-select: none;">
@@ -365,7 +372,7 @@ export class ErrorOverlay {
       </div>
     `;
 
-    if (this.overlay) {
+    if (this.overlay !== null) {
       this.overlay.innerHTML = errorHTML;
       this.overlay.style.display = 'block';
     }
@@ -384,7 +391,7 @@ export class ErrorOverlay {
    * Hide error overlay
    */
   hide(): void {
-    if (this.overlay) {
+    if (this.overlay !== null) {
       this.overlay.style.display = 'none';
     }
   }
@@ -443,7 +450,7 @@ export class PerformanceMonitor {
     delete this.marks[name];
 
     const existingMetrics = this.metrics[name];
-    if (!existingMetrics) {
+    if (existingMetrics === undefined) {
       this.metrics[name] = [];
     }
     this.metrics[name]?.push(duration);
@@ -458,15 +465,15 @@ export class PerformanceMonitor {
    */
   getStats(name: string): PerformanceStats | null {
     const values = this.metrics[name];
-    if (!values || values.length === 0) {
+    if (values === undefined || values.length === 0) {
       return null;
     }
 
     const sorted = [...values].sort((a, b) => a - b);
     const sum = values.reduce((a, b) => a + b, 0);
 
-    const p95Index = Math.floor(sorted.length * 0.95);
-    const p99Index = Math.floor(sorted.length * 0.99);
+    const p95Index = Math.floor(sorted.length * PERCENTILE_95);
+    const p99Index = Math.floor(sorted.length * PERCENTILE_99);
 
     return {
       count: values.length,

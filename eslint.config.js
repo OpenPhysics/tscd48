@@ -44,18 +44,23 @@ export default [
       quotes: ['error', 'single', { avoidEscape: true }],
     },
   },
-  // Apply to TypeScript files
+  // Apply to TypeScript files (basic rules for all TS files)
   ...tseslint.configs.recommended.map((config) => ({
     ...config,
     files: ['**/*.ts'],
     ignores: ['node_modules/', 'dist/', 'docs/', 'coverage/'],
   })),
+  // Apply stricter type-aware rules only to src files
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
     ignores: ['node_modules/', 'dist/', 'docs/', 'coverage/'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
       globals: {
         // Browser globals
         navigator: 'readonly',
@@ -88,6 +93,116 @@ export default [
         'warn',
         { argsIgnorePattern: '^_' },
       ],
+      '@typescript-eslint/explicit-function-return-type': [
+        'warn',
+        {
+          allowExpressions: true,
+          allowTypedFunctionExpressions: true,
+          allowHigherOrderFunctions: true,
+        },
+      ],
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
+      '@typescript-eslint/prefer-optional-chain': 'warn',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+        { prefer: 'type-imports' },
+      ],
+      '@typescript-eslint/prefer-readonly': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/strict-boolean-expressions': [
+        'warn',
+        {
+          allowString: false,
+          allowNumber: false,
+          allowNullableObject: false,
+          allowNullableBoolean: false,
+          allowNullableString: false,
+          allowNullableNumber: false,
+          allowAny: false,
+        },
+      ],
+      '@typescript-eslint/naming-convention': [
+        'warn',
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'typeAlias',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'class',
+          format: ['PascalCase'],
+        },
+        {
+          selector: 'variable',
+          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+          leadingUnderscore: 'allow',
+        },
+      ],
+      '@typescript-eslint/no-magic-numbers': [
+        'warn',
+        {
+          ignore: [-1, 0, 1, 2],
+          ignoreArrayIndexes: true,
+          ignoreDefaultValues: false,
+          ignoreClassFieldInitialValues: false,
+          enforceConst: true,
+          detectObjects: false,
+          ignoreEnums: true,
+          ignoreNumericLiteralTypes: true,
+          ignoreReadonlyClassProperties: true,
+          ignoreTypeIndexes: true,
+        },
+      ],
+      semi: ['error', 'always'],
+      quotes: ['error', 'single', { avoidEscape: true }],
+    },
+  },
+  // Apply to constants file (disable magic numbers rule since that's where constants are defined)
+  {
+    files: ['src/constants.ts'],
+    rules: {
+      '@typescript-eslint/no-magic-numbers': 'off',
+    },
+  },
+  // Apply to test files (without type-aware rules)
+  {
+    files: ['tests/**/*.ts'],
+    ignores: ['node_modules/', 'dist/', 'docs/', 'coverage/'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        // Node.js globals for testing
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        // Browser globals
+        navigator: 'readonly',
+        document: 'readonly',
+        window: 'readonly',
+        console: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-explicit-any': 'error',
       semi: ['error', 'always'],
       quotes: ['error', 'single', { avoidEscape: true }],
     },

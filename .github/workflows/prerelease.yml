@@ -93,8 +93,6 @@ jobs:
       - name: Create pre-release bundle
         run: |
           mkdir -p prerelease
-          cp cd48.js prerelease/
-          cp cd48.d.ts prerelease/
           cp -r dist prerelease/
           cp README.md prerelease/
           cp LICENSE prerelease/

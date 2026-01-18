@@ -73,6 +73,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build bundles
+        run: npm run build
+
       - name: Generate documentation
         run: npm run docs
 
@@ -81,13 +84,15 @@ jobs:
           mkdir -p release
 
           # Copy main files
-          cp cd48.js release/
-          cp cd48.d.ts release/
           cp index.html release/
           cp README.md release/
           cp LICENSE release/
           cp CHANGELOG.md release/
           cp package.json release/
+
+          # Copy bundled distributions
+          mkdir -p release/dist
+          cp -r dist/* release/dist/
 
           # Copy examples
           mkdir -p release/examples
