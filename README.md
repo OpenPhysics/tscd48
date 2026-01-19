@@ -44,9 +44,15 @@ npm install tscd48
 **TypeScript / ES Modules:**
 
 ```typescript
-import CD48, { type CD48Options, type CountData } from 'tscd48';
-import { Statistics, Histogram, TimeSeries } from 'tscd48/analysis';
-import { CalibrationWizard, type CalibrationProfile } from 'tscd48/calibration';
+import CD48, {
+  type CD48Options,
+  type CountData,
+  Statistics,
+  Histogram,
+  TimeSeries,
+  CalibrationWizard,
+  type CalibrationProfile,
+} from 'tscd48';
 
 const options: CD48Options = {
   baudRate: 115200,
@@ -188,7 +194,10 @@ await cd48.disconnect();
 ### Statistical Analysis Example
 
 ```javascript
-import { Statistics, Histogram } from 'tscd48/analysis';
+import CD48, { Statistics, Histogram } from 'tscd48';
+
+const cd48 = new CD48();
+await cd48.connect();
 
 // Collect data
 const samples = [];
@@ -210,7 +219,10 @@ console.log('Histogram:', hist);
 ### Calibration Example
 
 ```javascript
-import { CalibrationWizard } from 'tscd48/calibration';
+import CD48, { CalibrationWizard } from 'tscd48';
+
+const cd48 = new CD48();
+await cd48.connect();
 
 const wizard = new CalibrationWizard(cd48);
 
@@ -280,7 +292,7 @@ const result = await cd48.measureCoincidenceRate({
 #### Statistics
 
 ```javascript
-import { Statistics } from 'tscd48/analysis';
+import { Statistics } from 'tscd48';
 
 Statistics.mean(data);
 Statistics.median(data);
@@ -294,7 +306,7 @@ Statistics.summary(data); // All stats at once
 #### Histogram
 
 ```javascript
-import { Histogram } from 'tscd48/analysis';
+import { Histogram } from 'tscd48';
 
 Histogram.create(data, { bins: 10 });
 Histogram.autobin(data); // Sturges' rule
@@ -305,7 +317,7 @@ Histogram.cumulative(data); // Cumulative histogram
 #### Time-Series
 
 ```javascript
-import { TimeSeries } from 'tscd48/analysis';
+import { TimeSeries } from 'tscd48';
 
 TimeSeries.movingAverage(data, window);
 TimeSeries.exponentialMovingAverage(data, alpha);
@@ -323,7 +335,7 @@ import {
   CalibrationStorage,
   VoltageCalibration,
   CalibrationWizard,
-} from 'tscd48/calibration';
+} from 'tscd48';
 
 // Create profile
 const profile = new CalibrationProfile({ name: 'My Profile' });
@@ -366,25 +378,11 @@ dist/
     "types": "./dist/index.d.ts",
     "import": "./dist/cd48.esm.js",
     "require": "./dist/cd48.umd.js"
-  },
-  "./analysis": {
-    "types": "./dist/analysis.d.ts",
-    "import": "./dist/analysis.js"
-  },
-  "./calibration": {
-    "types": "./dist/calibration.d.ts",
-    "import": "./dist/calibration.js"
-  },
-  "./errors": {
-    "types": "./dist/errors.d.ts",
-    "import": "./dist/errors.js"
-  },
-  "./validation": {
-    "types": "./dist/validation.d.ts",
-    "import": "./dist/validation.js"
   }
 }
 ```
+
+All modules (analysis, calibration, errors, validation, dev-utils) are exported from the main entry point.
 
 ## 🧪 Testing
 
