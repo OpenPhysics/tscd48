@@ -162,3 +162,20 @@ export class OperationAbortedError extends CD48Error {
     this.operation = operation;
   }
 }
+
+/**
+ * Error thrown when firmware version is incompatible
+ */
+export class FirmwareIncompatibleError extends CD48Error {
+  public override readonly name: string = 'FirmwareIncompatibleError';
+  public readonly currentVersion: string;
+  public readonly minimumVersion: string;
+
+  constructor(currentVersion: string, minimumVersion: string) {
+    super(
+      `Firmware version ${currentVersion} is not supported. Minimum required: ${minimumVersion}`
+    );
+    this.currentVersion = currentVersion;
+    this.minimumVersion = minimumVersion;
+  }
+}

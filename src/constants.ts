@@ -40,6 +40,22 @@ export const DEFAULT_RETRY_DELAY_MS = 100;
 export const WEB_LOCK_NAME = 'cd48-serial-lock';
 
 // ============================================================================
+// Firmware Version Constants
+// ============================================================================
+
+/** Minimum supported firmware major version */
+export const MIN_FIRMWARE_MAJOR = 1;
+
+/** Minimum supported firmware minor version */
+export const MIN_FIRMWARE_MINOR = 0;
+
+/** Minimum supported firmware patch version */
+export const MIN_FIRMWARE_PATCH = 0;
+
+/** Firmware version string for minimum supported version */
+export const MIN_FIRMWARE_VERSION = `${MIN_FIRMWARE_MAJOR}.${MIN_FIRMWARE_MINOR}.${MIN_FIRMWARE_PATCH}`;
+
+// ============================================================================
 // Hardware Specifications
 // ============================================================================
 

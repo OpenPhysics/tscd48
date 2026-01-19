@@ -24,6 +24,7 @@ export type {
   DisconnectCallback,
   ReconnectCallback,
   ReconnectFailedCallback,
+  FirmwareInfo,
 } from './cd48.js';
 
 // Error classes
@@ -40,6 +41,7 @@ export {
   InvalidVoltageError,
   CommunicationError,
   OperationAbortedError,
+  FirmwareIncompatibleError,
 } from './errors.js';
 
 // Validation utilities
@@ -128,3 +130,20 @@ export type {
   DevModeUtilities,
   GlobalDevUtilities,
 } from './dev-utils.js';
+
+// Data export utilities
+export { DataExport } from './export.js';
+
+export type {
+  ExportFormat,
+  ExportableMeasurement,
+  ExportOptions,
+} from './export.js';
+
+// Firmware version constants
+export {
+  MIN_FIRMWARE_MAJOR,
+  MIN_FIRMWARE_MINOR,
+  MIN_FIRMWARE_PATCH,
+  MIN_FIRMWARE_VERSION,
+} from './constants.js';

@@ -25,6 +25,7 @@ import {
   InvalidResponseError,
   CommunicationError,
   OperationAbortedError,
+  FirmwareIncompatibleError,
 } from './errors.js';
 
 import {
@@ -59,6 +60,10 @@ import {
   DEFAULT_COMMAND_RETRIES,
   DEFAULT_RETRY_DELAY_MS,
   WEB_LOCK_NAME,
+  MIN_FIRMWARE_MAJOR,
+  MIN_FIRMWARE_MINOR,
+  MIN_FIRMWARE_PATCH,
+  MIN_FIRMWARE_VERSION,
 } from './constants.js';
 
 /**
@@ -231,6 +236,24 @@ export type ReconnectCallback = (data: ReconnectEventData) => void;
 export type ReconnectFailedCallback = (data: ReconnectFailedEventData) => void;
 
 /**
+ * Firmware version information
+ */
+export interface FirmwareInfo {
+  /** Raw version string from device */
+  readonly versionString: string;
+  /** Parsed major version number */
+  readonly major: number;
+  /** Parsed minor version number */
+  readonly minor: number;
+  /** Parsed patch version number */
+  readonly patch: number;
+  /** Whether this version meets minimum requirements */
+  readonly isCompatible: boolean;
+  /** Minimum supported version string */
+  readonly minimumVersion: string;
+}
+
+/**
  * Read result with timeout flag
  */
 interface ReadResult {
@@ -258,6 +281,7 @@ class CD48 {
   private readableStreamClosed: Promise<void> | null;
   private writableStreamClosed: Promise<void> | null;
   private _lastCommandTime: number;
+  private _rateLimitLock: Promise<void>;
   private _reconnecting: boolean;
   private _connectionState: ConnectionState;
   private _onDisconnect: DisconnectCallback | null;
@@ -286,6 +310,7 @@ class CD48 {
     this.readableStreamClosed = null;
     this.writableStreamClosed = null;
     this._lastCommandTime = 0;
+    this._rateLimitLock = Promise.resolve();
     this._reconnecting = false;
     this._connectionState = 'disconnected';
     this._onDisconnect = null;
@@ -644,6 +669,86 @@ class CD48 {
    */
   public async getVersion(): Promise<string> {
     return await this.sendCommand('v');
+  }
+
+  /**
+   * Parse firmware version string into components.
+   * Handles formats like "CD48 v1.2.3", "1.2.3", "v1.2", etc.
+   * @param versionString - Raw version string from device
+   * @returns Parsed version components
+   */
+  public static parseFirmwareVersion(versionString: string): {
+    major: number;
+    minor: number;
+    patch: number;
+  } {
+    // Extract version number pattern (e.g., "1.2.3" or "1.2")
+    const match = versionString.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    if (match !== null) {
+      return {
+        major: parseInt(match[1] ?? '0', DECIMAL_RADIX),
+        minor: parseInt(match[2] ?? '0', DECIMAL_RADIX),
+        patch: parseInt(match[3] ?? '0', DECIMAL_RADIX),
+      };
+    }
+    // If no pattern found, return zeros
+    return { major: 0, minor: 0, patch: 0 };
+  }
+
+  /**
+   * Compare two firmware versions.
+   * @param a - First version
+   * @param b - Second version
+   * @returns Negative if a < b, positive if a > b, zero if equal
+   */
+  public static compareFirmwareVersions(
+    a: { major: number; minor: number; patch: number },
+    b: { major: number; minor: number; patch: number }
+  ): number {
+    if (a.major !== b.major) return a.major - b.major;
+    if (a.minor !== b.minor) return a.minor - b.minor;
+    return a.patch - b.patch;
+  }
+
+  /**
+   * Get detailed firmware information including compatibility status.
+   * @returns Firmware information with compatibility check
+   */
+  public async getFirmwareInfo(): Promise<FirmwareInfo> {
+    const versionString = await this.getVersion();
+    const { major, minor, patch } = CD48.parseFirmwareVersion(versionString);
+    const minVersion = {
+      major: MIN_FIRMWARE_MAJOR,
+      minor: MIN_FIRMWARE_MINOR,
+      patch: MIN_FIRMWARE_PATCH,
+    };
+    const isCompatible =
+      CD48.compareFirmwareVersions({ major, minor, patch }, minVersion) >= 0;
+
+    return {
+      versionString,
+      major,
+      minor,
+      patch,
+      isCompatible,
+      minimumVersion: MIN_FIRMWARE_VERSION,
+    };
+  }
+
+  /**
+   * Check if the connected device has compatible firmware.
+   * @throws FirmwareIncompatibleError if firmware is too old
+   * @returns Firmware info if compatible
+   */
+  public async checkFirmwareCompatibility(): Promise<FirmwareInfo> {
+    const info = await this.getFirmwareInfo();
+    if (!info.isCompatible) {
+      throw new FirmwareIncompatibleError(
+        `${info.major}.${info.minor}.${info.patch}`,
+        info.minimumVersion
+      );
+    }
+    return info;
   }
 
   /**
@@ -1060,16 +1165,37 @@ class CD48 {
   }
 
   /**
-   * Apply rate limiting between commands.
+   * Apply rate limiting between commands using a mutex pattern.
+   * This prevents race conditions when multiple commands are queued.
    */
   private async _applyRateLimit(): Promise<void> {
-    if (this.rateLimitMs > 0) {
-      const elapsed = Date.now() - this._lastCommandTime;
-      if (elapsed < this.rateLimitMs) {
-        await this.sleep(this.rateLimitMs - elapsed);
+    // Chain onto the existing lock promise to serialize rate limiting
+    const previousLock = this._rateLimitLock;
+
+    // Create a new promise that will resolve when this command's rate limiting is done
+    let resolveCurrentLock: (() => void) | undefined;
+    this._rateLimitLock = new Promise((resolve) => {
+      resolveCurrentLock = resolve;
+    });
+
+    try {
+      // Wait for any previous rate-limited command to complete
+      await previousLock;
+
+      // Apply rate limiting if configured
+      if (this.rateLimitMs > 0) {
+        const elapsed = Date.now() - this._lastCommandTime;
+        if (elapsed < this.rateLimitMs) {
+          await this.sleep(this.rateLimitMs - elapsed);
+        }
+      }
+      this._lastCommandTime = Date.now();
+    } finally {
+      // Release the lock for the next command
+      if (resolveCurrentLock !== undefined) {
+        resolveCurrentLock();
       }
     }
-    this._lastCommandTime = Date.now();
   }
 }
 
