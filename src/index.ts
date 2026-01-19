@@ -10,6 +10,10 @@ export { default as CD48, default } from './cd48.js';
 // Export types from CD48
 export type {
   CD48Options,
+  ConnectionState,
+  ConnectionStateChangeData,
+  ConnectionStateChangeCallback,
+  MeasurementOptions,
   ChannelInputs,
   CountData,
   MeasurementUncertainty,
@@ -19,6 +23,8 @@ export type {
   CoincidenceMeasurement,
   DisconnectCallback,
   ReconnectCallback,
+  ReconnectFailedCallback,
+  FirmwareInfo,
 } from './cd48.js';
 
 // Error classes
@@ -34,6 +40,8 @@ export {
   InvalidChannelError,
   InvalidVoltageError,
   CommunicationError,
+  OperationAbortedError,
+  FirmwareIncompatibleError,
 } from './errors.js';
 
 // Validation utilities
@@ -84,6 +92,7 @@ export type {
 
 // Calibration utilities
 export {
+  CALIBRATION_PROFILE_VERSION,
   CalibrationProfile,
   CalibrationStorage,
   VoltageCalibration,
@@ -121,3 +130,20 @@ export type {
   DevModeUtilities,
   GlobalDevUtilities,
 } from './dev-utils.js';
+
+// Data export utilities
+export { DataExport } from './export.js';
+
+export type {
+  ExportFormat,
+  ExportableMeasurement,
+  ExportOptions,
+} from './export.js';
+
+// Firmware version constants
+export {
+  MIN_FIRMWARE_MAJOR,
+  MIN_FIRMWARE_MINOR,
+  MIN_FIRMWARE_PATCH,
+  MIN_FIRMWARE_VERSION,
+} from './constants.js';

@@ -13,6 +13,26 @@ import {
 } from './constants.js';
 
 /**
+ * Safe minimum function that handles large arrays without stack overflow
+ * @param data - Array of numbers
+ * @returns Minimum value or Infinity if empty
+ */
+function safeMin(data: number[]): number {
+  if (data.length === 0) return Infinity;
+  return data.reduce((min, val) => Math.min(min, val), Infinity);
+}
+
+/**
+ * Safe maximum function that handles large arrays without stack overflow
+ * @param data - Array of numbers
+ * @returns Maximum value or -Infinity if empty
+ */
+function safeMax(data: number[]): number {
+  if (data.length === 0) return -Infinity;
+  return data.reduce((max, val) => Math.max(max, val), -Infinity);
+}
+
+/**
  * Linear regression result
  */
 export interface LinearRegressionResult {
@@ -186,8 +206,8 @@ export const Statistics = {
       median: this.median(data),
       std: this.standardDeviation(data),
       variance: this.variance(data),
-      min: Math.min(...data),
-      max: Math.max(...data),
+      min: safeMin(data),
+      max: safeMax(data),
       count: data.length,
     };
   },
@@ -209,8 +229,8 @@ export const Histogram = {
     }
 
     const numBins = options.bins ?? DEFAULT_HISTOGRAM_BINS;
-    const min = options.min ?? Math.min(...data);
-    const max = options.max ?? Math.max(...data);
+    const min = options.min ?? safeMin(data);
+    const max = options.max ?? safeMax(data);
     const binWidth = (max - min) / numBins;
 
     if (binWidth === 0) {
@@ -282,8 +302,8 @@ export const Histogram = {
 
     const binWidth =
       (2 * iqr) / Math.pow(data.length, FREEDMAN_DIACONIS_DIVISOR);
-    const min = Math.min(...data);
-    const max = Math.max(...data);
+    const min = safeMin(data);
+    const max = safeMax(data);
     const calculatedBins = Math.ceil((max - min) / binWidth);
     const bins =
       binWidth === 0

@@ -30,6 +30,31 @@ export const RECONNECT_ATTEMPTS = 5;
 /** Delay between reconnection attempts (milliseconds) */
 export const RECONNECT_DELAY_MS = 1000;
 
+/** Default number of command retries for transient errors */
+export const DEFAULT_COMMAND_RETRIES = 0;
+
+/** Default delay between command retries (milliseconds) */
+export const DEFAULT_RETRY_DELAY_MS = 100;
+
+/** Web Locks API lock name for CD48 serial communication */
+export const WEB_LOCK_NAME = 'cd48-serial-lock';
+
+// ============================================================================
+// Firmware Version Constants
+// ============================================================================
+
+/** Minimum supported firmware major version */
+export const MIN_FIRMWARE_MAJOR = 1;
+
+/** Minimum supported firmware minor version */
+export const MIN_FIRMWARE_MINOR = 0;
+
+/** Minimum supported firmware patch version */
+export const MIN_FIRMWARE_PATCH = 0;
+
+/** Firmware version string for minimum supported version */
+export const MIN_FIRMWARE_VERSION = `${MIN_FIRMWARE_MAJOR}.${MIN_FIRMWARE_MINOR}.${MIN_FIRMWARE_PATCH}`;
+
 // ============================================================================
 // Hardware Specifications
 // ============================================================================

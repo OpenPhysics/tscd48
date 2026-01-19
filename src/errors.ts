@@ -149,3 +149,33 @@ export class CommunicationError extends CD48Error {
     this.originalError = cause;
   }
 }
+
+/**
+ * Error thrown when an operation is aborted
+ */
+export class OperationAbortedError extends CD48Error {
+  public override readonly name: string = 'OperationAbortedError';
+  public readonly operation: string;
+
+  constructor(operation: string) {
+    super(`Operation '${operation}' was aborted`);
+    this.operation = operation;
+  }
+}
+
+/**
+ * Error thrown when firmware version is incompatible
+ */
+export class FirmwareIncompatibleError extends CD48Error {
+  public override readonly name: string = 'FirmwareIncompatibleError';
+  public readonly currentVersion: string;
+  public readonly minimumVersion: string;
+
+  constructor(currentVersion: string, minimumVersion: string) {
+    super(
+      `Firmware version ${currentVersion} is not supported. Minimum required: ${minimumVersion}`
+    );
+    this.currentVersion = currentVersion;
+    this.minimumVersion = minimumVersion;
+  }
+}

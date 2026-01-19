@@ -24,6 +24,8 @@ import {
   CommandTimeoutError,
   InvalidResponseError,
   CommunicationError,
+  OperationAbortedError,
+  FirmwareIncompatibleError,
 } from './errors.js';
 
 import {
@@ -55,6 +57,13 @@ import {
   DEFAULT_MEASUREMENT_DURATION,
   MILLISECONDS_PER_SECOND,
   PERCENT_CONVERSION,
+  DEFAULT_COMMAND_RETRIES,
+  DEFAULT_RETRY_DELAY_MS,
+  WEB_LOCK_NAME,
+  MIN_FIRMWARE_MAJOR,
+  MIN_FIRMWARE_MINOR,
+  MIN_FIRMWARE_PATCH,
+  MIN_FIRMWARE_VERSION,
 } from './constants.js';
 
 /**
@@ -73,6 +82,44 @@ export interface CD48Options {
   reconnectDelay?: number;
   /** Minimum ms between commands (default: 0) */
   rateLimitMs?: number;
+  /** Number of retries for failed commands (default: 0) */
+  commandRetries?: number;
+  /** Delay between retries in ms (default: 100) */
+  retryDelay?: number;
+  /** Use Web Locks API to prevent concurrent commands (default: false) */
+  useWebLocks?: boolean;
+}
+
+/**
+ * Connection state for the CD48 device
+ */
+export type ConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting';
+
+/**
+ * Connection state change event data
+ */
+export interface ConnectionStateChangeData {
+  readonly previousState: ConnectionState;
+  readonly currentState: ConnectionState;
+}
+
+/**
+ * Connection state change callback type
+ */
+export type ConnectionStateChangeCallback = (
+  data: ConnectionStateChangeData
+) => void;
+
+/**
+ * Measurement options with abort support
+ */
+export interface MeasurementOptions {
+  /** AbortSignal to cancel the measurement */
+  signal?: AbortSignal;
 }
 
 /**
@@ -130,7 +177,7 @@ export interface CoincidenceUncertainty {
 /**
  * Coincidence measurement options
  */
-export interface CoincidenceMeasurementOptions {
+export interface CoincidenceMeasurementOptions extends MeasurementOptions {
   /** Measurement duration in seconds */
   duration?: number;
   /** Channel for singles A (default: 0) */
@@ -189,6 +236,24 @@ export type ReconnectCallback = (data: ReconnectEventData) => void;
 export type ReconnectFailedCallback = (data: ReconnectFailedEventData) => void;
 
 /**
+ * Firmware version information
+ */
+export interface FirmwareInfo {
+  /** Raw version string from device */
+  readonly versionString: string;
+  /** Parsed major version number */
+  readonly major: number;
+  /** Parsed minor version number */
+  readonly minor: number;
+  /** Parsed patch version number */
+  readonly patch: number;
+  /** Whether this version meets minimum requirements */
+  readonly isCompatible: boolean;
+  /** Minimum supported version string */
+  readonly minimumVersion: string;
+}
+
+/**
  * Read result with timeout flag
  */
 interface ReadResult {
@@ -207,16 +272,22 @@ class CD48 {
   private readonly reconnectAttempts: number;
   private readonly reconnectDelay: number;
   private readonly rateLimitMs: number;
+  private readonly commandRetries: number;
+  private readonly retryDelay: number;
+  private readonly useWebLocks: boolean;
   private port: SerialPort | null;
   private reader: ReadableStreamDefaultReader<string> | null;
   private writer: WritableStreamDefaultWriter<string> | null;
   private readableStreamClosed: Promise<void> | null;
   private writableStreamClosed: Promise<void> | null;
   private _lastCommandTime: number;
+  private _rateLimitLock: Promise<void>;
   private _reconnecting: boolean;
+  private _connectionState: ConnectionState;
   private _onDisconnect: DisconnectCallback | null;
   private _onReconnect: ReconnectCallback | null;
   private _onReconnectFailed: ReconnectFailedCallback | null;
+  private _onConnectionStateChange: ConnectionStateChangeCallback | null;
   private _boundHandleDisconnect: (() => void) | null;
 
   /**
@@ -230,16 +301,22 @@ class CD48 {
     this.reconnectAttempts = options.reconnectAttempts ?? RECONNECT_ATTEMPTS;
     this.reconnectDelay = options.reconnectDelay ?? RECONNECT_DELAY_MS;
     this.rateLimitMs = options.rateLimitMs ?? 0;
+    this.commandRetries = options.commandRetries ?? DEFAULT_COMMAND_RETRIES;
+    this.retryDelay = options.retryDelay ?? DEFAULT_RETRY_DELAY_MS;
+    this.useWebLocks = options.useWebLocks ?? false;
     this.port = null;
     this.reader = null;
     this.writer = null;
     this.readableStreamClosed = null;
     this.writableStreamClosed = null;
     this._lastCommandTime = 0;
+    this._rateLimitLock = Promise.resolve();
     this._reconnecting = false;
+    this._connectionState = 'disconnected';
     this._onDisconnect = null;
     this._onReconnect = null;
     this._onReconnectFailed = null;
+    this._onConnectionStateChange = null;
     this._boundHandleDisconnect = null;
   }
 
@@ -249,6 +326,14 @@ class CD48 {
    */
   public static isSupported(): boolean {
     return 'serial' in navigator;
+  }
+
+  /**
+   * Check if Web Locks API is supported.
+   * @returns True if supported
+   */
+  public static isWebLocksSupported(): boolean {
+    return 'locks' in navigator;
   }
 
   /**
@@ -285,6 +370,41 @@ class CD48 {
   }
 
   /**
+   * Set callback for connection state change events.
+   * @param callback - Function called when connection state changes
+   */
+  public onConnectionStateChange(
+    callback: ConnectionStateChangeCallback
+  ): void {
+    this._onConnectionStateChange = callback;
+  }
+
+  /**
+   * Get current connection state.
+   * @returns Current connection state
+   */
+  public getConnectionState(): ConnectionState {
+    return this._connectionState;
+  }
+
+  /**
+   * Update connection state and notify listeners.
+   * @param newState - New connection state
+   */
+  private _setConnectionState(newState: ConnectionState): void {
+    const previousState = this._connectionState;
+    if (previousState !== newState) {
+      this._connectionState = newState;
+      if (this._onConnectionStateChange !== null) {
+        this._onConnectionStateChange({
+          previousState,
+          currentState: newState,
+        });
+      }
+    }
+  }
+
+  /**
    * Connect to the CD48 device.
    * Opens a serial port picker dialog for the user.
    * @returns True if connected successfully
@@ -294,6 +414,8 @@ class CD48 {
       throw new UnsupportedBrowserError();
     }
 
+    this._setConnectionState('connecting');
+
     try {
       // Request port with Cypress VID filter
       this.port = await navigator.serial.requestPort({
@@ -301,8 +423,10 @@ class CD48 {
       });
 
       await this._setupConnection();
+      this._setConnectionState('connected');
       return true;
     } catch (error) {
+      this._setConnectionState('disconnected');
       if (error instanceof Error && error.name === 'NotFoundError') {
         throw new DeviceSelectionCancelledError();
       }
@@ -323,6 +447,7 @@ class CD48 {
     }
 
     this._reconnecting = true;
+    this._setConnectionState('reconnecting');
 
     try {
       // Clean up existing connection
@@ -336,13 +461,18 @@ class CD48 {
       });
 
       if (cd48Port === undefined) {
+        this._setConnectionState('disconnected');
         throw new ConnectionError('No previously connected CD48 device found');
       }
 
       this.port = cd48Port;
       await this._setupConnection();
+      this._setConnectionState('connected');
 
       return true;
+    } catch (error) {
+      this._setConnectionState('disconnected');
+      throw error;
     } finally {
       this._reconnecting = false;
     }
@@ -353,6 +483,7 @@ class CD48 {
    */
   public async disconnect(): Promise<void> {
     await this._cleanupConnection();
+    this._setConnectionState('disconnected');
     if (this._onDisconnect !== null) {
       this._onDisconnect();
     }
@@ -375,11 +506,91 @@ class CD48 {
   }
 
   /**
+   * Sleep for specified milliseconds with abort support.
+   * @param ms - Milliseconds to sleep
+   * @param signal - Optional AbortSignal to cancel the sleep
+   * @throws OperationAbortedError if aborted
+   */
+  public async sleepWithAbort(ms: number, signal?: AbortSignal): Promise<void> {
+    if (signal?.aborted) {
+      throw new OperationAbortedError('sleep');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(resolve, ms);
+
+      if (signal !== undefined) {
+        const abortHandler = (): void => {
+          clearTimeout(timeoutId);
+          reject(new OperationAbortedError('sleep'));
+        };
+
+        signal.addEventListener('abort', abortHandler, { once: true });
+
+        // Clean up abort listener after sleep completes
+        setTimeout(() => {
+          signal.removeEventListener('abort', abortHandler);
+        }, ms + 1);
+      }
+    });
+  }
+
+  /**
    * Send a command and read the response.
+   * Includes automatic retry logic for transient errors.
+   * Uses Web Locks API when enabled to prevent concurrent commands.
    * @param command - Command to send
    * @returns Response from device
    */
   public async sendCommand(command: string): Promise<string> {
+    // Use Web Locks if enabled and supported
+    if (this.useWebLocks && CD48.isWebLocksSupported()) {
+      return navigator.locks.request(WEB_LOCK_NAME, async () => {
+        return this._sendCommandWithRetry(command);
+      });
+    }
+    return this._sendCommandWithRetry(command);
+  }
+
+  /**
+   * Send a command with retry logic.
+   * @param command - Command to send
+   * @returns Response from device
+   */
+  private async _sendCommandWithRetry(command: string): Promise<string> {
+    let lastError: Error | undefined;
+
+    for (let attempt = 0; attempt <= this.commandRetries; attempt++) {
+      try {
+        return await this._sendCommandOnce(command);
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // Don't retry for non-retryable errors
+        if (
+          error instanceof NotConnectedError ||
+          error instanceof InvalidResponseError
+        ) {
+          throw error;
+        }
+
+        // If we have retries left, wait and try again
+        if (attempt < this.commandRetries) {
+          await this.sleep(this.retryDelay * (attempt + 1));
+        }
+      }
+    }
+
+    // All retries exhausted, throw the last error
+    throw lastError ?? new CommunicationError('Unknown error after retries');
+  }
+
+  /**
+   * Send a command once without retry logic.
+   * @param command - Command to send
+   * @returns Response from device
+   */
+  private async _sendCommandOnce(command: string): Promise<string> {
     if (!this.isConnected()) {
       // Attempt auto-reconnect if enabled
       if (this.autoReconnect) {
@@ -458,6 +669,86 @@ class CD48 {
    */
   public async getVersion(): Promise<string> {
     return await this.sendCommand('v');
+  }
+
+  /**
+   * Parse firmware version string into components.
+   * Handles formats like "CD48 v1.2.3", "1.2.3", "v1.2", etc.
+   * @param versionString - Raw version string from device
+   * @returns Parsed version components
+   */
+  public static parseFirmwareVersion(versionString: string): {
+    major: number;
+    minor: number;
+    patch: number;
+  } {
+    // Extract version number pattern (e.g., "1.2.3" or "1.2")
+    const match = versionString.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    if (match !== null) {
+      return {
+        major: parseInt(match[1] ?? '0', DECIMAL_RADIX),
+        minor: parseInt(match[2] ?? '0', DECIMAL_RADIX),
+        patch: parseInt(match[3] ?? '0', DECIMAL_RADIX),
+      };
+    }
+    // If no pattern found, return zeros
+    return { major: 0, minor: 0, patch: 0 };
+  }
+
+  /**
+   * Compare two firmware versions.
+   * @param a - First version
+   * @param b - Second version
+   * @returns Negative if a < b, positive if a > b, zero if equal
+   */
+  public static compareFirmwareVersions(
+    a: { major: number; minor: number; patch: number },
+    b: { major: number; minor: number; patch: number }
+  ): number {
+    if (a.major !== b.major) return a.major - b.major;
+    if (a.minor !== b.minor) return a.minor - b.minor;
+    return a.patch - b.patch;
+  }
+
+  /**
+   * Get detailed firmware information including compatibility status.
+   * @returns Firmware information with compatibility check
+   */
+  public async getFirmwareInfo(): Promise<FirmwareInfo> {
+    const versionString = await this.getVersion();
+    const { major, minor, patch } = CD48.parseFirmwareVersion(versionString);
+    const minVersion = {
+      major: MIN_FIRMWARE_MAJOR,
+      minor: MIN_FIRMWARE_MINOR,
+      patch: MIN_FIRMWARE_PATCH,
+    };
+    const isCompatible =
+      CD48.compareFirmwareVersions({ major, minor, patch }, minVersion) >= 0;
+
+    return {
+      versionString,
+      major,
+      minor,
+      patch,
+      isCompatible,
+      minimumVersion: MIN_FIRMWARE_VERSION,
+    };
+  }
+
+  /**
+   * Check if the connected device has compatible firmware.
+   * @throws FirmwareIncompatibleError if firmware is too old
+   * @returns Firmware info if compatible
+   */
+  public async checkFirmwareCompatibility(): Promise<FirmwareInfo> {
+    const info = await this.getFirmwareInfo();
+    if (!info.isCompatible) {
+      throw new FirmwareIncompatibleError(
+        `${info.major}.${info.minor}.${info.patch}`,
+        info.minimumVersion
+      );
+    }
+    return info;
   }
 
   /**
@@ -609,16 +900,27 @@ class CD48 {
    * Measure count rate on a channel with Poisson uncertainty.
    * @param channel - Channel number (0-7)
    * @param duration - Measurement duration in seconds
+   * @param options - Optional measurement options including AbortSignal
    * @returns Rate measurement result with uncertainties
+   * @throws OperationAbortedError if aborted via signal
    */
   public async measureRate(
     channel = 0,
-    duration = DEFAULT_MEASUREMENT_DURATION
+    duration = DEFAULT_MEASUREMENT_DURATION,
+    options?: MeasurementOptions
   ): Promise<RateMeasurement> {
     validateChannel(channel);
 
+    // Check if already aborted
+    if (options?.signal?.aborted) {
+      throw new OperationAbortedError('measureRate');
+    }
+
     await this.clearCounts();
-    await this.sleep(duration * MILLISECONDS_PER_SECOND);
+    await this.sleepWithAbort(
+      duration * MILLISECONDS_PER_SECOND,
+      options?.signal
+    );
     const data = await this.getCounts(false);
     const counts = data.counts[channel] ?? 0;
     const rate = counts / duration;
@@ -648,6 +950,7 @@ class CD48 {
    * Measure coincidence rate with accidental correction and uncertainties.
    * @param options - Measurement options
    * @returns Coincidence measurement result with uncertainties
+   * @throws OperationAbortedError if aborted via signal
    */
   public async measureCoincidenceRate(
     options: CoincidenceMeasurementOptions = {}
@@ -658,10 +961,16 @@ class CD48 {
       singlesBChannel = DEFAULT_SINGLES_B_CHANNEL,
       coincidenceChannel = DEFAULT_COINCIDENCE_CHANNEL,
       coincidenceWindow = COINCIDENCE_WINDOW_SECONDS,
+      signal,
     } = options;
 
+    // Check if already aborted
+    if (signal?.aborted) {
+      throw new OperationAbortedError('measureCoincidenceRate');
+    }
+
     await this.clearCounts();
-    await this.sleep(duration * MILLISECONDS_PER_SECOND);
+    await this.sleepWithAbort(duration * MILLISECONDS_PER_SECOND, signal);
     const data = await this.getCounts(false);
 
     const singlesA = data.counts[singlesAChannel] ?? 0;
@@ -856,16 +1165,37 @@ class CD48 {
   }
 
   /**
-   * Apply rate limiting between commands.
+   * Apply rate limiting between commands using a mutex pattern.
+   * This prevents race conditions when multiple commands are queued.
    */
   private async _applyRateLimit(): Promise<void> {
-    if (this.rateLimitMs > 0) {
-      const elapsed = Date.now() - this._lastCommandTime;
-      if (elapsed < this.rateLimitMs) {
-        await this.sleep(this.rateLimitMs - elapsed);
+    // Chain onto the existing lock promise to serialize rate limiting
+    const previousLock = this._rateLimitLock;
+
+    // Create a new promise that will resolve when this command's rate limiting is done
+    let resolveCurrentLock: (() => void) | undefined;
+    this._rateLimitLock = new Promise((resolve) => {
+      resolveCurrentLock = resolve;
+    });
+
+    try {
+      // Wait for any previous rate-limited command to complete
+      await previousLock;
+
+      // Apply rate limiting if configured
+      if (this.rateLimitMs > 0) {
+        const elapsed = Date.now() - this._lastCommandTime;
+        if (elapsed < this.rateLimitMs) {
+          await this.sleep(this.rateLimitMs - elapsed);
+        }
+      }
+      this._lastCommandTime = Date.now();
+    } finally {
+      // Release the lock for the next command
+      if (resolveCurrentLock !== undefined) {
+        resolveCurrentLock();
       }
     }
-    this._lastCommandTime = Date.now();
   }
 }
 

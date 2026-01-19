@@ -19,6 +19,9 @@ import {
   DEFAULT_CALIBRATION_DURATION,
 } from './constants.js';
 
+/** Current calibration profile schema version */
+export const CALIBRATION_PROFILE_VERSION = 1;
+
 /**
  * Channel calibration data stored by channel index
  */
@@ -37,6 +40,8 @@ export interface CalibrationProfileOptions {
  * Calibration profile JSON representation
  */
 export interface CalibrationProfileJSON {
+  /** Schema version for migration support */
+  version: number;
   name: string;
   description: string;
   date: string;
@@ -61,13 +66,18 @@ function isChannelCalibrationMap(
 
 /**
  * Type guard for CalibrationProfileJSON
+ * Accepts both versioned (v1+) and legacy unversioned profiles
  */
 function isCalibrationProfileJSON(
   value: unknown
 ): value is CalibrationProfileJSON {
   if (typeof value !== 'object' || value === null) return false;
   const obj = value as Record<string, unknown>;
+  // Version is optional for backwards compatibility with unversioned profiles
+  const hasValidVersion =
+    obj['version'] === undefined || typeof obj['version'] === 'number';
   return (
+    hasValidVersion &&
     typeof obj['name'] === 'string' &&
     typeof obj['description'] === 'string' &&
     typeof obj['date'] === 'string' &&
@@ -78,6 +88,23 @@ function isCalibrationProfileJSON(
     typeof obj['metadata'] === 'object' &&
     obj['metadata'] !== null
   );
+}
+
+/**
+ * Migrate a calibration profile to the current version
+ * @param profile - Profile data (possibly from an older version)
+ * @returns Migrated profile data
+ */
+function migrateCalibrationProfile(
+  profile: CalibrationProfileJSON
+): CalibrationProfileJSON {
+  // If no version, it's a legacy profile - add version 1
+  if (profile.version === undefined) {
+    return { ...profile, version: CALIBRATION_PROFILE_VERSION };
+  }
+  // Future migrations would go here
+  // if (profile.version === 1) { migrate to v2 }
+  return profile;
 }
 
 /**
@@ -314,6 +341,7 @@ export class CalibrationProfile {
    */
   public toJSON(): CalibrationProfileJSON {
     return {
+      version: CALIBRATION_PROFILE_VERSION,
       name: this.name,
       description: this.description,
       date: this.date.toISOString(),
@@ -355,7 +383,9 @@ export class CalibrationStorage {
     const profiles = this.loadAll();
     const profileData = profiles[name];
     if (profileData !== undefined) {
-      return CalibrationProfile.fromJSON(profileData);
+      // Migrate legacy profiles to current version
+      const migratedProfile = migrateCalibrationProfile(profileData);
+      return CalibrationProfile.fromJSON(migratedProfile);
     }
     return null;
   }
@@ -622,16 +652,22 @@ export class CalibrationWizard {
    * @param channel - Channel number
    * @param testThresholds - Array of threshold values to test
    * @param duration - Measurement duration per threshold
+   * @param settlingTimeMs - Time to wait after setting threshold (default: 100ms)
    * @returns Optimal threshold and rate data
    */
   public async findOptimalThreshold(
     channel: number,
     testThresholds: number[],
-    duration = DEFAULT_CALIBRATION_DURATION
+    duration = DEFAULT_CALIBRATION_DURATION,
+    settlingTimeMs = 100
   ): Promise<OptimalThresholdResult> {
     const results: Array<{ threshold: number; rate: number }> = [];
 
     for (const threshold of testThresholds) {
+      // Apply the threshold voltage to the device
+      await this.cd48.setTriggerLevel(threshold);
+      // Allow time for the trigger level to settle
+      await this.cd48.sleep(settlingTimeMs);
       const rate = await this.measureChannelRate(channel, duration);
       results.push({ threshold, rate });
     }
