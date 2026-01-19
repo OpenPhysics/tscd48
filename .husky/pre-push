@@ -1,2 +1,50 @@
-echo "🧪 Running tests before push..."
-npm test -- --run --reporter=verbose
+#!/bin/sh
+
+echo "🚀 Running pre-push checks..."
+echo ""
+
+# Run format check
+echo "📝 Checking code formatting..."
+if ! npm run format:check; then
+  echo ""
+  echo "❌ Format check failed!"
+  echo "   Run 'npm run format' to fix formatting issues."
+  exit 1
+fi
+echo "✅ Format check passed"
+echo ""
+
+# Run linting
+echo "🔍 Running ESLint..."
+if ! npm run lint; then
+  echo ""
+  echo "❌ Lint check failed!"
+  echo "   Run 'npm run lint:fix' to fix linting issues."
+  exit 1
+fi
+echo "✅ Lint check passed"
+echo ""
+
+# Run TypeScript type checking
+echo "📘 Running TypeScript type check..."
+if ! npm run typecheck; then
+  echo ""
+  echo "❌ TypeScript type check failed!"
+  echo "   Fix the type errors before pushing."
+  exit 1
+fi
+echo "✅ TypeScript check passed"
+echo ""
+
+# Run tests
+echo "🧪 Running tests..."
+if ! npm test -- --run --reporter=verbose; then
+  echo ""
+  echo "❌ Tests failed!"
+  echo "   Fix the failing tests before pushing."
+  exit 1
+fi
+echo "✅ Tests passed"
+echo ""
+
+echo "✅ All pre-push checks passed! Pushing..."
