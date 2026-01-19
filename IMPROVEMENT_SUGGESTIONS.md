@@ -1,11 +1,11 @@
 # Repository Improvement Suggestions
 
 **Date**: 2026-01-17
-**Repository**: jscd48 - JavaScript Interface for CD48 Coincidence Counter
+**Repository**: tscd48 - JavaScript Interface for CD48 Coincidence Counter
 
 ## Executive Summary
 
-The jscd48 repository is well-structured with excellent documentation, comprehensive testing, and modern development practices. This document outlines actionable improvements across 10 key areas, prioritized by impact and effort.
+The tscd48 repository is well-structured with excellent documentation, comprehensive testing, and modern development practices. This document outlines actionable improvements across 10 key areas, prioritized by impact and effort.
 
 **Overall Health**: 🟢 Excellent (85/100)
 
@@ -457,7 +457,7 @@ https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
 
 ## Reporting a Vulnerability
 
-We take security seriously. If you discover a security vulnerability in jscd48,
+We take security seriously. If you discover a security vulnerability in tscd48,
 please report it responsibly.
 
 ### How to Report
@@ -483,7 +483,7 @@ please report it responsibly.
 
 ### Security Best Practices
 
-When using jscd48:
+When using tscd48:
 
 1. **HTTPS Required**: Web Serial API requires secure context
 2. **User Gesture**: Connection requires user interaction
@@ -764,11 +764,11 @@ describe('Validation Edge Cases', () => {
     "scripts": [],
     "menu": {
       "GitHub": {
-        "href": "https://github.com/OpenPhysics/jscd48",
+        "href": "https://github.com/OpenPhysics/tscd48",
         "target": "_blank"
       },
       "NPM": {
-        "href": "https://www.npmjs.com/package/jscd48",
+        "href": "https://www.npmjs.com/package/tscd48",
         "target": "_blank"
       }
     }
@@ -1172,7 +1172,7 @@ No breaking changes. v1.0.0 is a feature-stable release.
 
 ## Conclusion
 
-The jscd48 repository is in excellent shape with strong fundamentals. These improvements will:
+The tscd48 repository is in excellent shape with strong fundamentals. These improvements will:
 
 1. **Enhance TypeScript support** - Critical for modern JavaScript development
 2. **Improve production reliability** - Auto-reconnect and rate limiting

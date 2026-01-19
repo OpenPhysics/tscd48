@@ -1,10 +1,10 @@
 # Accessibility Features
 
-This document describes the accessibility features of the jscd48 web interface and provides guidance for users who rely on assistive technologies.
+This document describes the accessibility features of the tscd48 web interface and provides guidance for users who rely on assistive technologies.
 
 ## WCAG Compliance
 
-The jscd48 web interface aims to meet **WCAG 2.1 Level AA** standards for accessibility.
+The tscd48 web interface aims to meet **WCAG 2.1 Level AA** standards for accessibility.
 
 ## Keyboard Navigation
 
@@ -220,9 +220,9 @@ Planned accessibility improvements:
 
 ## Reporting Accessibility Issues
 
-If you encounter accessibility barriers while using jscd48:
+If you encounter accessibility barriers while using tscd48:
 
-1. **Open an issue** on GitHub: https://github.com/OpenPhysics/jscd48/issues
+1. **Open an issue** on GitHub: https://github.com/OpenPhysics/tscd48/issues
 2. **Use the template** "Accessibility Issue"
 3. **Provide details:**
    - Browser and version
@@ -230,7 +230,7 @@ If you encounter accessibility barriers while using jscd48:
    - Steps to reproduce
    - Expected vs actual behavior
 
-We are committed to making jscd48 accessible to all users.
+We are committed to making tscd48 accessible to all users.
 
 ## Standards and References
 
@@ -253,4 +253,4 @@ Recommended tools for testing accessibility:
 
 Last updated: 2026-01-16
 Maintainer: OpenPhysics Contributors
-Contact: https://github.com/OpenPhysics/jscd48/issues
+Contact: https://github.com/OpenPhysics/tscd48/issues

@@ -1,6 +1,6 @@
 # Migration Guide
 
-This guide helps you migrate between major versions of jscd48.
+This guide helps you migrate between major versions of tscd48.
 
 ## Migrating to v1.0.0
 
@@ -13,19 +13,19 @@ The package now uses proper ES module exports. If you were importing via CommonJ
 **Before (CommonJS):**
 
 ```javascript
-const CD48 = require('jscd48');
+const CD48 = require('tscd48');
 ```
 
 **After (ES Modules):**
 
 ```javascript
-import CD48 from 'jscd48';
+import CD48 from 'tscd48';
 ```
 
 For CommonJS compatibility, use the UMD bundle:
 
 ```javascript
-const CD48 = require('jscd48/dist/cd48.umd.js');
+const CD48 = require('tscd48/dist/cd48.umd.js');
 ```
 
 #### 2. New Package Exports
@@ -34,11 +34,11 @@ Individual modules can now be imported directly:
 
 ```javascript
 // Import specific modules
-import { Statistics, Histogram } from 'jscd48/analysis';
-import { CalibrationProfile, CalibrationWizard } from 'jscd48/calibration';
-import { validateChannel, voltageToByte } from 'jscd48/validation';
-import { CD48Error, NotConnectedError } from 'jscd48/errors';
-import { DevLogger, setupDevMode } from 'jscd48/dev-utils';
+import { Statistics, Histogram } from 'tscd48/analysis';
+import { CalibrationProfile, CalibrationWizard } from 'tscd48/calibration';
+import { validateChannel, voltageToByte } from 'tscd48/validation';
+import { CD48Error, NotConnectedError } from 'tscd48/errors';
+import { DevLogger, setupDevMode } from 'tscd48/dev-utils';
 ```
 
 #### 3. measureRate() Returns Uncertainties
@@ -154,7 +154,7 @@ None in this release.
 If you were using development versions before the official 1.0 release:
 
 1. **Update all imports** to use the new export paths
-2. **Update error handling** to use the new error classes from `jscd48/errors`
+2. **Update error handling** to use the new error classes from `tscd48/errors`
 3. **Review measurement code** to handle the new uncertainty values
 4. **Test auto-reconnection** if you were implementing manual reconnection logic
 
@@ -163,8 +163,8 @@ If you were using development versions before the official 1.0 release:
 Full TypeScript definitions are now included:
 
 ```typescript
-import CD48 from 'jscd48';
-import type { CD48Options, RateMeasurement } from 'jscd48';
+import CD48 from 'tscd48';
+import type { CD48Options, RateMeasurement } from 'tscd48';
 
 const options: CD48Options = {
   baudRate: 115200,
@@ -178,8 +178,8 @@ const result: RateMeasurement = await cd48.measureRate(0, 1.0);
 Type definitions for sub-modules:
 
 ```typescript
-import type { Statistics } from 'jscd48/analysis';
-import type { CalibrationProfile } from 'jscd48/calibration';
+import type { Statistics } from 'tscd48/analysis';
+import type { CalibrationProfile } from 'tscd48/calibration';
 ```
 
 ## Getting Help
@@ -187,8 +187,8 @@ import type { CalibrationProfile } from 'jscd48/calibration';
 If you encounter issues during migration:
 
 1. Check the [Troubleshooting Guide](./TROUBLESHOOTING.md)
-2. Review the [API Documentation](https://github.com/OpenPhysics/jscd48#api-reference)
-3. Open an issue at https://github.com/OpenPhysics/jscd48/issues
+2. Review the [API Documentation](https://github.com/OpenPhysics/tscd48#api-reference)
+3. Open an issue at https://github.com/OpenPhysics/tscd48/issues
 
 ## Version History
 

@@ -1,5 +1,5 @@
 /**
- * jscd48 - JavaScript/TypeScript interface for the CD48 Coincidence Counter
+ * tscd48 - JavaScript/TypeScript interface for the CD48 Coincidence Counter
  *
  * @packageDocumentation
  */

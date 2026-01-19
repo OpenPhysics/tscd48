@@ -1,6 +1,6 @@
 ---
 name: Question
-about: Ask a question about jscd48
+about: Ask a question about tscd48
 title: '[QUESTION] '
 labels: question
 assignees: ''
@@ -30,7 +30,7 @@ If applicable, provide a minimal code example:
 
 - **Browser**: [e.g. Chrome 120]
 - **Operating System**: [e.g. Windows 11]
-- **jscd48 Version**: [e.g. 1.0.0]
+- **tscd48 Version**: [e.g. 1.0.0]
 
 ## Additional Information
 

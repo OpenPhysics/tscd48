@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps you diagnose and resolve common issues when using the jscd48 library with the CD48 Coincidence Counter.
+This guide helps you diagnose and resolve common issues when using the tscd48 library with the CD48 Coincidence Counter.
 
 ## Table of Contents
 
@@ -400,7 +400,7 @@ window.addEventListener('load', async () => {
 5. Use production builds (minified bundles) in deployment:
    ```html
    <!-- Use minified UMD bundle for better performance -->
-   <script src="https://cdn.jsdelivr.net/npm/jscd48@latest/dist/cd48.umd.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/tscd48@latest/dist/cd48.umd.min.js"></script>
    ```
 
 ---
@@ -408,7 +408,7 @@ window.addEventListener('load', async () => {
 ## Additional Resources
 
 - [Web Serial API Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API)
-- [CD48 Hardware Manual](https://github.com/OpenPhysics/jscd48)
+- [CD48 Hardware Manual](https://github.com/OpenPhysics/tscd48)
 - [Error Handling Guide](./ERROR_HANDLING.md)
 - [API Documentation](./docs/api)
 
@@ -416,7 +416,7 @@ window.addEventListener('load', async () => {
 
 If you're still experiencing issues:
 
-1. Check the [Issues](https://github.com/OpenPhysics/jscd48/issues) page
+1. Check the [Issues](https://github.com/OpenPhysics/tscd48/issues) page
 2. Review the [examples](./examples) directory
 3. Enable debug logging to gather more information:
    ```javascript

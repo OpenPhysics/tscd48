@@ -1,5 +1,5 @@
 {
-  "name": "jscd48",
+  "name": "tscd48",
   "version": "2.0.0",
   "description": "TypeScript interface for the CD48 Coincidence Counter using Web Serial API",
   "type": "module",
@@ -71,7 +71,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpenPhysics/jscd48.git"
+    "url": "git+https://github.com/OpenPhysics/tscd48.git"
   },
   "keywords": [
     "cd48",
@@ -97,9 +97,9 @@
   "author": "OpenPhysics Contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenPhysics/jscd48/issues"
+    "url": "https://github.com/OpenPhysics/tscd48/issues"
   },
-  "homepage": "https://github.com/OpenPhysics/jscd48#readme",
+  "homepage": "https://github.com/OpenPhysics/tscd48#readme",
   "publishConfig": {
     "access": "public"
   },

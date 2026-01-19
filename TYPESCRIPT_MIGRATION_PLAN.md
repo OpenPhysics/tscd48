@@ -1,10 +1,10 @@
-# TypeScript Migration Plan for jscd48
+# TypeScript Migration Plan for tscd48
 
 > **Status: ✅ COMPLETED** (January 2026)
 
 ## Executive Summary
 
-This document outlines the comprehensive plan to convert the jscd48 repository from JavaScript to TypeScript. The project is a TypeScript interface for controlling the Red Dog Physics CD48 Coincidence Counter using the Web Serial API.
+This document outlines the comprehensive plan to convert the tscd48 repository from JavaScript to TypeScript. The project is a TypeScript interface for controlling the Red Dog Physics CD48 Coincidence Counter using the Web Serial API.
 
 ### Migration Results
 
@@ -111,7 +111,7 @@ export default defineConfig({
 ### 1.4 Create Source Directory Structure
 
 ```
-jscd48/
+tscd48/
 ├── src/
 │   ├── cd48.ts           (main module)
 │   ├── analysis.ts       (statistical analysis)
@@ -611,7 +611,7 @@ test.describe('Main Interface', () => {
 
 ```json
 {
-  "name": "jscd48",
+  "name": "tscd48",
   "version": "1.1.0",
   "type": "module",
   "main": "./dist/cd48.umd.js",
@@ -716,8 +716,8 @@ Add TypeScript usage examples:
 ## TypeScript Usage
 
 ```typescript
-import CD48, { type CD48Options, type CountData } from 'jscd48';
-import { Statistics } from 'jscd48/analysis';
+import CD48, { type CD48Options, type CountData } from 'tscd48';
+import { Statistics } from 'tscd48/analysis';
 
 const options: CD48Options = {
   baudRate: 115200,

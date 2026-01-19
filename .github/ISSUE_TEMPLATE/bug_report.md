@@ -29,7 +29,7 @@ A clear and concise description of what actually happened.
 
 - **Browser**: [e.g. Chrome 120, Edge 119]
 - **Operating System**: [e.g. Windows 11, macOS 14, Ubuntu 22.04]
-- **jscd48 Version**: [e.g. 1.0.0]
+- **tscd48 Version**: [e.g. 1.0.0]
 - **CD48 Firmware Version**: [if applicable]
 
 ## Screenshots
