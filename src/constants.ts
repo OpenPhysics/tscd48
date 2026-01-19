@@ -143,6 +143,9 @@ export const GAIN_MAX = 10;
 /** Minimum number of points required for calibration */
 export const MIN_CALIBRATION_POINTS = 2;
 
+/** Default settling time after setting threshold during calibration (milliseconds) */
+export const DEFAULT_SETTLING_TIME_MS = 100;
+
 /** JSON formatting indentation spaces */
 export const JSON_INDENT_SPACES = 2;
 

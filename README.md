@@ -438,7 +438,6 @@ npm install
 
 ```bash
 npm run dev          # Start Vite dev server with hot reload
-npm run dev:legacy   # Legacy serve mode (no hot reload)
 npm run preview      # Preview production build
 ```
 

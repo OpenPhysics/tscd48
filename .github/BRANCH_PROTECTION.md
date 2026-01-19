@@ -6,14 +6,14 @@ This document outlines the recommended branch protection settings for the `tscd4
 
 The following CI jobs must pass before merging to `main`:
 
-| Status Check | Job Name | Purpose |
-|--------------|----------|---------|
-| **lint** | Lint & Format | Ensures code follows ESLint rules and Prettier formatting |
-| **typecheck** | TypeScript Check | Verifies TypeScript compiles without errors |
-| **test** | Test (Node 20) | Runs unit tests on the primary Node.js version |
-| **e2e** | E2E Tests | Runs Playwright end-to-end tests |
-| **build** | Build Verification | Ensures the project builds successfully |
-| **security** | Security Audit | Checks for vulnerable dependencies |
+| Status Check  | Job Name           | Purpose                                                   |
+| ------------- | ------------------ | --------------------------------------------------------- |
+| **lint**      | Lint & Format      | Ensures code follows ESLint rules and Prettier formatting |
+| **typecheck** | TypeScript Check   | Verifies TypeScript compiles without errors               |
+| **test**      | Test (Node 20)     | Runs unit tests on the primary Node.js version            |
+| **e2e**       | E2E Tests          | Runs Playwright end-to-end tests                          |
+| **build**     | Build Verification | Ensures the project builds successfully                   |
+| **security**  | Security Audit     | Checks for vulnerable dependencies                        |
 
 ## Recommended GitHub Branch Protection Settings
 
@@ -22,6 +22,7 @@ The following CI jobs must pass before merging to `main`:
 Navigate to **Settings > Branches > Add branch protection rule** and configure:
 
 #### Branch name pattern
+
 ```
 main
 ```
@@ -97,17 +98,17 @@ git push --no-verify
 
 All CI jobs have timeout limits to prevent runaway processes:
 
-| Job | Timeout |
-|-----|---------|
-| Lint & Format | 10 minutes |
-| TypeScript Check | 10 minutes |
-| Test | 15 minutes |
-| Security Audit | 10 minutes |
-| E2E Tests | 20 minutes |
-| Bundle Size Check | 10 minutes |
+| Job                    | Timeout    |
+| ---------------------- | ---------- |
+| Lint & Format          | 10 minutes |
+| TypeScript Check       | 10 minutes |
+| Test                   | 15 minutes |
+| Security Audit         | 10 minutes |
+| E2E Tests              | 20 minutes |
+| Bundle Size Check      | 10 minutes |
 | Performance Benchmarks | 15 minutes |
-| Build Verification | 15 minutes |
-| CI Summary | 5 minutes |
+| Build Verification     | 15 minutes |
+| CI Summary             | 5 minutes  |
 
 ## Setting Up Branch Protection via GitHub CLI
 
@@ -143,6 +144,7 @@ For repositories using GitHub Rulesets (newer feature), create a ruleset with:
 ### Status check not appearing
 
 If a status check doesn't appear in the list:
+
 1. Ensure the workflow has run at least once on a PR
 2. Check that the job name matches exactly
 3. For matrix jobs, use the specific name like `test (20)`

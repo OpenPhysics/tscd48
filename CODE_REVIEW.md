@@ -20,6 +20,7 @@ This is a **high-quality, production-ready** TypeScript library for controlling 
 ### 1. TypeScript Configuration (Excellent)
 
 The `tsconfig.json` enables all strict checks:
+
 - `strict: true` with all individual strict flags enabled
 - `noUncheckedIndexedAccess: true` - catches potential undefined access
 - `exactOptionalPropertyTypes: true` - stricter optional property handling
@@ -28,12 +29,13 @@ The `tsconfig.json` enables all strict checks:
 
 ```typescript
 // Example of proper null safety in cd48.ts:72-74
-const counts = data.counts[channel] ?? 0;  // Safe indexed access
+const counts = data.counts[channel] ?? 0; // Safe indexed access
 ```
 
 ### 2. Error Handling Architecture (Excellent)
 
 Well-designed error hierarchy with specific error classes:
+
 - `CD48Error` (base)
 - `UnsupportedBrowserError`, `NotConnectedError`, `ConnectionError`
 - `CommandTimeoutError`, `InvalidResponseError`, `CommunicationError`
@@ -44,10 +46,12 @@ Each error class includes contextual information (e.g., `CommandTimeoutError` in
 ### 3. Validation with Branded Types (Excellent)
 
 Innovative use of branded types in `validation.ts`:
+
 ```typescript
 export type Channel = number & { readonly [ChannelBrand]: typeof ChannelBrand };
 export type Voltage = number & { readonly [VoltageBrand]: typeof VoltageBrand };
 ```
+
 This provides compile-time safety for validated values.
 
 ### 4. Test Coverage (Excellent)
@@ -61,6 +65,7 @@ This provides compile-time safety for validated values.
 ### 5. CI/CD Pipeline (Excellent)
 
 Comprehensive GitHub Actions workflows:
+
 - Lint, typecheck, test matrix (Node 18-24)
 - Security audits with npm audit
 - E2E tests with Playwright
@@ -80,6 +85,7 @@ Comprehensive GitHub Actions workflows:
 ### 7. Bundle Strategy (Good)
 
 Multiple bundle formats for different use cases:
+
 - ESM and UMD variants
 - Minified and unminified versions
 - Small bundle sizes (~5KB minified, ~2KB gzipped)
@@ -124,14 +130,14 @@ The `findOptimalThreshold` method measures rates but never actually applies the 
 ```typescript
 // Current code (line 634-636):
 for (const threshold of testThresholds) {
-  const rate = await this.measureChannelRate(channel, duration);  // Threshold not applied!
+  const rate = await this.measureChannelRate(channel, duration); // Threshold not applied!
   results.push({ threshold, rate });
 }
 
 // Suggested fix:
 for (const threshold of testThresholds) {
-  await this.cd48.setTriggerLevel(threshold);  // Apply threshold first
-  await this.cd48.sleep(100);  // Allow settling time
+  await this.cd48.setTriggerLevel(threshold); // Apply threshold first
+  await this.cd48.sleep(100); // Allow settling time
   const rate = await this.measureChannelRate(channel, duration);
   results.push({ threshold, rate });
 }
@@ -163,7 +169,7 @@ The `CalibrationProfileJSON` interface lacks a version field. This could cause i
 
 ```typescript
 export interface CalibrationProfileJSON {
-  version: number;  // Add schema version
+  version: number; // Add schema version
   name: string;
   // ... rest of fields
 }
@@ -194,7 +200,11 @@ This also affects `src/analysis.ts:212-213` and `src/analysis.ts:285-286`.
 Consider adding a connection state observable or event emitter pattern:
 
 ```typescript
-type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
+type ConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting';
 
 // Add EventTarget inheritance or similar
 cd48.addEventListener('statechange', (event) => {
@@ -324,6 +334,7 @@ The auto-reconnect feature should have dedicated integration tests that simulate
 ### 1. Add Architecture Decision Records (ADR)
 
 Consider documenting key architectural decisions:
+
 - Why branded types over classes for validation
 - Web Serial API vs. other serial libraries
 - Event callback vs. EventTarget pattern
@@ -331,6 +342,7 @@ Consider documenting key architectural decisions:
 ### 2. Add Performance Documentation
 
 Document expected performance characteristics:
+
 - Maximum reliable command rate
 - Memory usage during continuous monitoring
 - Recommended polling intervals
@@ -340,6 +352,7 @@ Document expected performance characteristics:
 ## Security Considerations
 
 The codebase handles security well:
+
 - No command injection vulnerabilities
 - Web Serial API provides inherent sandboxing
 - User gesture required for connection
@@ -352,10 +365,10 @@ The codebase handles security well:
 
 ### Browser Support Matrix
 
-| Feature | Chrome | Edge | Firefox | Safari |
-|---------|--------|------|---------|--------|
-| Web Serial | 89+ | 89+ | N/A | N/A |
-| ES2020 | 80+ | 80+ | 72+ | 13+ |
+| Feature    | Chrome | Edge | Firefox | Safari |
+| ---------- | ------ | ---- | ------- | ------ |
+| Web Serial | 89+    | 89+  | N/A     | N/A    |
+| ES2020     | 80+    | 80+  | 72+     | 13+    |
 
 Consider adding a polyfill strategy or fallback message for unsupported browsers.
 
@@ -363,18 +376,18 @@ Consider adding a polyfill strategy or fallback message for unsupported browsers
 
 ## Summary of Recommendations
 
-| Priority | Suggestion | Effort |
-|----------|------------|--------|
-| High | Add AbortController support | Medium |
-| High | Fix findOptimalThreshold implementation | Low |
-| High | Add command retry logic | Medium |
-| Medium | Add calibration data versioning | Low |
-| Medium | Fix large array operations | Low |
-| Medium | Add connection state events | Medium |
-| Medium | Consider Web Locks API | Medium |
-| Low | Add firmware version checking | Medium |
-| Low | Improve rate limiting | Low |
-| Low | Add more export formats | Medium |
+| Priority | Suggestion                              | Effort |
+| -------- | --------------------------------------- | ------ |
+| High     | Add AbortController support             | Medium |
+| High     | Fix findOptimalThreshold implementation | Low    |
+| High     | Add command retry logic                 | Medium |
+| Medium   | Add calibration data versioning         | Low    |
+| Medium   | Fix large array operations              | Low    |
+| Medium   | Add connection state events             | Medium |
+| Medium   | Consider Web Locks API                  | Medium |
+| Low      | Add firmware version checking           | Medium |
+| Low      | Improve rate limiting                   | Low    |
+| Low      | Add more export formats                 | Medium |
 
 ---
 
@@ -383,10 +396,11 @@ Consider adding a polyfill strategy or fallback message for unsupported browsers
 This is an exceptionally well-engineered library that follows TypeScript best practices. The suggestions above are refinements rather than corrections of fundamental issues. The codebase is ready for production use, with the high-priority items being recommended for the next minor release.
 
 **Recommended Actions:**
+
 1. Address the `findOptimalThreshold` bug (breaking)
 2. Add AbortController support for better UX
 3. Add retry logic for robustness
 
 ---
 
-*Review completed by Claude Code Review*
+_Review completed by Claude Code Review_
