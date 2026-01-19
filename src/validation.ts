@@ -141,35 +141,6 @@ export const REPEAT_INTERVAL_MIN = 100;
 export const REPEAT_INTERVAL_MAX = 65535;
 
 /**
- * Validation range shape
- */
-interface ValidationRange {
-  readonly min: number;
-  readonly max: number;
-}
-
-/**
- * Validation ranges type definition
- */
-interface ValidationRangesType {
-  readonly channel: ValidationRange;
-  readonly voltage: ValidationRange;
-  readonly byte: ValidationRange;
-  readonly repeatInterval: ValidationRange;
-}
-
-/**
- * Validation ranges as immutable object
- * Provides centralized access to all validation bounds
- */
-export const VALIDATION_RANGES = {
-  channel: { min: CHANNEL_MIN, max: CHANNEL_MAX },
-  voltage: { min: VOLTAGE_MIN, max: VOLTAGE_MAX },
-  byte: { min: BYTE_MIN, max: BYTE_MAX },
-  repeatInterval: { min: REPEAT_INTERVAL_MIN, max: REPEAT_INTERVAL_MAX },
-} as const satisfies ValidationRangesType;
-
-/**
  * Impedance mode type
  */
 export type ImpedanceMode = 'highz' | '50ohm';

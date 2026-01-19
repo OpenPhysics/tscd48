@@ -7,7 +7,6 @@ import {
   DEFAULT_HISTOGRAM_BINS,
   OUTLIER_Z_SCORE_THRESHOLD,
   EXPONENTIAL_MA_DEFAULT_ALPHA,
-  DEFAULT_TARGET_SNR,
   QUARTILE_Q1,
   QUARTILE_Q3,
   FREEDMAN_DIACONIS_DIVISOR,
@@ -124,18 +123,6 @@ export const Statistics = {
    */
   poissonUncertainty(count: number): number {
     return Math.sqrt(Math.max(0, count));
-  },
-
-  /**
-   * Calculate statistical significance between two count rates
-   * @param count1 - First count
-   * @param count2 - Second count
-   * @returns Z-score
-   */
-  zScore(count1: number, count2: number): number {
-    const uncertainty = Math.sqrt(count1 + count2);
-    if (uncertainty === 0) return 0;
-    return Math.abs(count1 - count2) / uncertainty;
   },
 
   /**
@@ -417,34 +404,6 @@ export const TimeSeries = {
   },
 
   /**
-   * Calculate rate of change
-   * @param data - Time series data
-   * @param times - Time values (optional)
-   * @returns Rate of change
-   */
-  rateOfChange(data: number[], times: number[] | null = null): number[] {
-    if (data.length < 2) return [];
-
-    const result: number[] = [];
-    for (let i = 1; i < data.length; i++) {
-      const currentData = data[i];
-      const previousData = data[i - 1];
-      if (currentData === undefined || previousData === undefined) continue;
-
-      let dt = 1;
-      if (times !== null) {
-        const currentTime = times[i];
-        const previousTime = times[i - 1];
-        if (currentTime !== undefined && previousTime !== undefined) {
-          dt = currentTime - previousTime;
-        }
-      }
-      result.push((currentData - previousData) / dt);
-    }
-    return result;
-  },
-
-  /**
    * Calculate autocorrelation
    * @param data - Time series data
    * @param lag - Lag value
@@ -471,52 +430,6 @@ export const TimeSeries = {
 
     return denominator === 0 ? 0 : numerator / denominator;
   },
-
-  /**
-   * Resample time series data
-   * @param data - Time series data
-   * @param times - Original time values
-   * @param newTimes - New time values to interpolate to
-   * @returns Resampled data
-   */
-  resample(data: number[], times: number[], newTimes: number[]): number[] {
-    if (data.length !== times.length) {
-      return [];
-    }
-
-    return newTimes.map((newTime) => {
-      // Find surrounding points
-      let i = 0;
-      while (i < times.length && (times[i] ?? 0) < newTime) i++;
-
-      if (i === 0) return data[0] ?? 0;
-      if (i === times.length) return data[data.length - 1] ?? 0;
-
-      // Linear interpolation
-      const t0 = times[i - 1] ?? 0;
-      const t1 = times[i] ?? 0;
-      const v0 = data[i - 1] ?? 0;
-      const v1 = data[i] ?? 0;
-      const fraction = t1 === t0 ? 0 : (newTime - t0) / (t1 - t0);
-
-      return v0 + fraction * (v1 - v0);
-    });
-  },
-
-  /**
-   * Calculate dead time correction
-   * @param observedRate - Observed count rate (counts/sec)
-   * @param deadTime - Dead time in seconds
-   * @returns Corrected count rate
-   */
-  deadTimeCorrection(observedRate: number, deadTime: number): number {
-    // Using the formula: true_rate = observed_rate / (1 - observed_rate * dead_time)
-    const denominator = 1 - observedRate * deadTime;
-    if (denominator <= 0) {
-      throw new Error('Dead time correction overflow - rate too high');
-    }
-    return observedRate / denominator;
-  },
 };
 
 /**
@@ -536,52 +449,6 @@ export const Coincidence = {
     coincidenceWindow: number
   ): number {
     return 2 * rate1 * rate2 * coincidenceWindow;
-  },
-
-  /**
-   * Calculate true coincidence rate
-   * @param measuredRate - Measured coincidence rate
-   * @param rate1 - Rate of first detector
-   * @param rate2 - Rate of second detector
-   * @param coincidenceWindow - Coincidence window in seconds
-   * @returns True coincidence rate
-   */
-  trueRate(
-    measuredRate: number,
-    rate1: number,
-    rate2: number,
-    coincidenceWindow: number
-  ): number {
-    const accidental = this.accidentalRate(rate1, rate2, coincidenceWindow);
-    return Math.max(0, measuredRate - accidental);
-  },
-
-  /**
-   * Calculate signal-to-noise ratio
-   * @param trueRate - True coincidence rate
-   * @param accidentalRate - Accidental coincidence rate
-   * @returns Signal-to-noise ratio
-   */
-  signalToNoise(trueRate: number, accidentalRate: number): number {
-    return accidentalRate === 0 ? Infinity : trueRate / accidentalRate;
-  },
-
-  /**
-   * Calculate optimal coincidence window
-   * @param rate1 - Rate of first detector
-   * @param rate2 - Rate of second detector
-   * @param targetSNR - Target signal-to-noise ratio
-   * @returns Optimal window in seconds
-   */
-  optimalWindow(
-    rate1: number,
-    rate2: number,
-    targetSNR = DEFAULT_TARGET_SNR
-  ): number {
-    // Simplified estimation - actual optimal depends on specific application
-    const product = Math.sqrt(rate1 * rate2);
-    if (product === 0) return Infinity;
-    return 1 / (2 * targetSNR * product);
   },
 };
 

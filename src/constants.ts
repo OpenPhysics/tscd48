@@ -90,9 +90,6 @@ export const OUTLIER_Z_SCORE_THRESHOLD = 3;
 /** Default alpha parameter for exponential moving average (0-1) */
 export const EXPONENTIAL_MA_DEFAULT_ALPHA = 0.3;
 
-/** Default target signal-to-noise ratio for measurement optimization */
-export const DEFAULT_TARGET_SNR = 10;
-
 /** Q1 quartile position (25th percentile) */
 export const QUARTILE_Q1 = 0.25;
 

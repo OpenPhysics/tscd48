@@ -322,9 +322,7 @@ import { TimeSeries } from 'tscd48';
 TimeSeries.movingAverage(data, window);
 TimeSeries.exponentialMovingAverage(data, alpha);
 TimeSeries.detectOutliers(data, threshold);
-TimeSeries.rateOfChange(data, times);
 TimeSeries.autocorrelation(data, lag);
-TimeSeries.deadTimeCorrection(rate, deadTime);
 ```
 
 ### Calibration API
