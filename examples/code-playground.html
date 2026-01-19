@@ -36,6 +36,28 @@
         flex-direction: column;
       }
 
+      .nav-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        padding: 10px;
+        background: #1a1f3a;
+        flex-wrap: wrap;
+        border-bottom: 1px solid #2a2f4a;
+      }
+      .nav-bar a {
+        color: #3b82f6;
+        text-decoration: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-size: 13px;
+      }
+      .nav-bar a:hover {
+        background: #2a2f4a;
+        color: #e94560;
+      }
+
       .header {
         background: #1a1f3a;
         padding: 15px 20px;
@@ -264,8 +286,16 @@
     </style>
   </head>
   <body>
+    <nav class="nav-bar">
+      <a href="../">Main App</a>
+      <a href="./">All Examples</a>
+      <a href="demo-mode.html">Demo Mode</a>
+      <a href="simple-monitor.html">Simple Monitor</a>
+      <a href="statistical-analysis.html">Statistical Analysis</a>
+    </nav>
+
     <div class="header">
-      <h1>🎮 Live Code Playground</h1>
+      <h1>Live Code Playground</h1>
       <div class="header-controls">
         <button id="connectBtn" class="secondary">Connect Device</button>
         <button id="runBtn" class="success">Run Code (Ctrl+Enter)</button>

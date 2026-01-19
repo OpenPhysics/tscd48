@@ -30,6 +30,54 @@
         padding: 20px;
       }
 
+      .nav-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding: 12px;
+        background: #1a1f3a;
+        border-radius: 8px;
+        flex-wrap: wrap;
+        border: 1px solid #2a2f4a;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .nav-bar a {
+        color: #3b82f6;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+      .nav-bar a:hover {
+        background: #2a2f4a;
+        color: #e94560;
+      }
+      .related-examples {
+        margin-top: 20px;
+        padding: 15px;
+        background: #1a1f3a;
+        border-radius: 8px;
+        border: 1px solid #2a2f4a;
+      }
+      .related-examples h3 {
+        color: #3b82f6;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      .related-examples a {
+        color: #aaa;
+        text-decoration: none;
+        margin-right: 15px;
+        font-size: 14px;
+      }
+      .related-examples a:hover {
+        color: #e94560;
+      }
+
       .container {
         max-width: 1200px;
         margin: 0 auto;
@@ -133,9 +181,17 @@
     </style>
   </head>
   <body>
+    <nav class="nav-bar">
+      <a href="../">Main App</a>
+      <a href="./">All Examples</a>
+      <a href="simple-monitor.html">Simple Monitor</a>
+      <a href="graphing.html">Graphing</a>
+      <a href="code-playground.html">Code Playground</a>
+    </nav>
+
     <div class="container">
       <header>
-        <h1>🎮 CD48 Demo Mode</h1>
+        <h1>CD48 Demo Mode</h1>
         <p class="subtitle">Try the interface without hardware</p>
       </header>
 
@@ -176,6 +232,13 @@
           </button>
         </div>
         <div id="measurements" style="margin-top: 15px; color: #4ade80"></div>
+      </div>
+
+      <div class="related-examples">
+        <h3>Related Examples:</h3>
+        <a href="simple-monitor.html">Simple Monitor</a>
+        <a href="coincidence-measurement.html">Coincidence Measurement</a>
+        <a href="statistical-analysis.html">Statistical Analysis</a>
       </div>
     </div>
 

@@ -7,27 +7,53 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 50px auto;
+        max-width: 900px;
+        margin: 0 auto;
         padding: 20px;
-        background: #f5f5f5;
+        background: linear-gradient(135deg, #0f0f1e 0%, #1a1f3a 100%);
+        min-height: 100vh;
+        color: #eee;
+      }
+      .nav-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding: 12px;
+        background: #1a1f3a;
+        border-radius: 8px;
+        flex-wrap: wrap;
+        border: 1px solid #2a2f4a;
+      }
+      .nav-bar a {
+        color: #3b82f6;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+      .nav-bar a:hover {
+        background: #2a2f4a;
+        color: #e94560;
       }
       .container {
-        background: white;
+        background: #1a1f3a;
         padding: 30px;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border: 1px solid #2a2f4a;
       }
       h1 {
-        color: #333;
+        color: #e94560;
         margin-bottom: 10px;
       }
       .subtitle {
-        color: #666;
+        color: #aaa;
         margin-bottom: 30px;
       }
       button {
-        background: #007bff;
+        background: #e94560;
         color: white;
         border: none;
         padding: 10px 20px;
@@ -36,30 +62,30 @@
         font-size: 16px;
         margin: 5px;
       }
-      button:hover {
-        background: #0056b3;
+      button:hover:not(:disabled) {
+        background: #d63851;
       }
       button:disabled {
-        background: #ccc;
+        background: #555;
         cursor: not-allowed;
       }
       .error {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
+        background: rgba(251, 191, 36, 0.2);
+        border-left: 4px solid #fbbf24;
         padding: 12px;
         margin: 10px 0;
         border-radius: 4px;
       }
       .success {
-        background: #d4edda;
-        border-left: 4px solid #28a745;
+        background: rgba(74, 222, 128, 0.2);
+        border-left: 4px solid #4ade80;
         padding: 12px;
         margin: 10px 0;
         border-radius: 4px;
       }
       .info {
-        background: #d1ecf1;
-        border-left: 4px solid #17a2b8;
+        background: rgba(59, 130, 246, 0.2);
+        border-left: 4px solid #3b82f6;
         padding: 12px;
         margin: 10px 0;
         border-radius: 4px;
@@ -72,22 +98,56 @@
       .scenario {
         margin: 20px 0;
         padding: 15px;
-        background: #f8f9fa;
+        background: #0f0f1e;
         border-radius: 4px;
+        border: 1px solid #2a2f4a;
       }
       .scenario h3 {
         margin-top: 0;
-        color: #495057;
+        color: #3b82f6;
+      }
+      .scenario p {
+        color: #aaa;
       }
       code {
-        background: #e9ecef;
+        background: #2a2f4a;
         padding: 2px 6px;
         border-radius: 3px;
         font-family: monospace;
+        color: #4ade80;
+      }
+      .related-examples {
+        margin-top: 30px;
+        padding: 15px;
+        background: #0f0f1e;
+        border-radius: 8px;
+        border: 1px solid #2a2f4a;
+      }
+      .related-examples h3 {
+        color: #3b82f6;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      .related-examples a {
+        color: #aaa;
+        text-decoration: none;
+        margin-right: 15px;
+        font-size: 14px;
+      }
+      .related-examples a:hover {
+        color: #e94560;
       }
     </style>
   </head>
   <body>
+    <nav class="nav-bar">
+      <a href="../">Main App</a>
+      <a href="./">All Examples</a>
+      <a href="simple-monitor.html">Simple Monitor</a>
+      <a href="demo-mode.html">Demo Mode</a>
+      <a href="continuous-monitoring.html">Continuous Monitoring</a>
+    </nav>
+
     <div class="container">
       <h1>CD48 Error Handling Example</h1>
       <p class="subtitle">Demonstrating robust error handling patterns</p>
@@ -127,6 +187,13 @@
       </div>
 
       <div id="log"></div>
+
+      <div class="related-examples">
+        <h3>Related Examples:</h3>
+        <a href="simple-monitor.html">Simple Monitor</a>
+        <a href="continuous-monitoring.html">Continuous Monitoring</a>
+        <a href="data-export.html">Data Export</a>
+      </div>
     </div>
 
     <script type="module">
