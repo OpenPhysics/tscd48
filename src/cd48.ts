@@ -65,9 +65,9 @@ export interface CD48Options {
   baudRate?: number;
   /** Delay after commands in ms (default: 50) */
   commandDelay?: number;
-  /** Enable auto-reconnection (default: false) */
+  /** Enable auto-reconnection (default: true) */
   autoReconnect?: boolean;
-  /** Max reconnection attempts (default: 3) */
+  /** Max reconnection attempts (default: 5) */
   reconnectAttempts?: number;
   /** Delay between reconnect attempts in ms (default: 1000) */
   reconnectDelay?: number;
@@ -160,6 +160,20 @@ export interface CoincidenceMeasurement {
 }
 
 /**
+ * Reconnect event data
+ */
+export interface ReconnectEventData {
+  readonly attempt: number;
+}
+
+/**
+ * Reconnect failed event data
+ */
+export interface ReconnectFailedEventData {
+  readonly attempts: number;
+}
+
+/**
  * Disconnect callback type
  */
 export type DisconnectCallback = () => void;
@@ -167,7 +181,12 @@ export type DisconnectCallback = () => void;
 /**
  * Reconnect callback type
  */
-export type ReconnectCallback = () => void;
+export type ReconnectCallback = (data: ReconnectEventData) => void;
+
+/**
+ * Reconnect failed callback type
+ */
+export type ReconnectFailedCallback = (data: ReconnectFailedEventData) => void;
 
 /**
  * Read result with timeout flag
@@ -197,6 +216,8 @@ class CD48 {
   private _reconnecting: boolean;
   private _onDisconnect: DisconnectCallback | null;
   private _onReconnect: ReconnectCallback | null;
+  private _onReconnectFailed: ReconnectFailedCallback | null;
+  private _boundHandleDisconnect: (() => void) | null;
 
   /**
    * Create a CD48 interface instance.
@@ -205,7 +226,7 @@ class CD48 {
   constructor(options: CD48Options = {}) {
     this.baudRate = options.baudRate ?? BAUD_RATE;
     this.commandDelay = options.commandDelay ?? COMMAND_DELAY_MS;
-    this.autoReconnect = options.autoReconnect ?? false;
+    this.autoReconnect = options.autoReconnect ?? true;
     this.reconnectAttempts = options.reconnectAttempts ?? RECONNECT_ATTEMPTS;
     this.reconnectDelay = options.reconnectDelay ?? RECONNECT_DELAY_MS;
     this.rateLimitMs = options.rateLimitMs ?? 0;
@@ -218,6 +239,8 @@ class CD48 {
     this._reconnecting = false;
     this._onDisconnect = null;
     this._onReconnect = null;
+    this._onReconnectFailed = null;
+    this._boundHandleDisconnect = null;
   }
 
   /**
@@ -251,6 +274,14 @@ class CD48 {
    */
   public onReconnect(callback: ReconnectCallback): void {
     this._onReconnect = callback;
+  }
+
+  /**
+   * Set callback for reconnect failed events.
+   * @param callback - Function called when all reconnection attempts fail
+   */
+  public onReconnectFailed(callback: ReconnectFailedCallback): void {
+    this._onReconnectFailed = callback;
   }
 
   /**
@@ -310,10 +341,6 @@ class CD48 {
 
       this.port = cd48Port;
       await this._setupConnection();
-
-      if (this._onReconnect !== null) {
-        this._onReconnect();
-      }
 
       return true;
     } finally {
@@ -730,6 +757,12 @@ class CD48 {
     );
     this.writer = textEncoder.writable.getWriter();
 
+    // Set up disconnect event listener for auto-reconnection
+    this._boundHandleDisconnect = () => {
+      void this._handleDisconnect();
+    };
+    this.port.addEventListener('disconnect', this._boundHandleDisconnect);
+
     // Wait for device to initialize
     await this.sleep(CONNECTION_INIT_DELAY_MS);
   }
@@ -748,6 +781,9 @@ class CD48 {
         await this.sleep(this.reconnectDelay * attempt);
         const success = await this.reconnect();
         if (success) {
+          if (this._onReconnect !== null) {
+            this._onReconnect({ attempt });
+          }
           return true;
         }
       } catch {
@@ -755,7 +791,24 @@ class CD48 {
       }
     }
 
+    if (this._onReconnectFailed !== null) {
+      this._onReconnectFailed({ attempts: this.reconnectAttempts });
+    }
     return false;
+  }
+
+  /**
+   * Handle unexpected disconnection.
+   * Triggers auto-reconnection if enabled.
+   */
+  private async _handleDisconnect(): Promise<void> {
+    if (this._onDisconnect !== null) {
+      this._onDisconnect();
+    }
+
+    if (this.autoReconnect) {
+      await this._attemptAutoReconnect();
+    }
   }
 
   /**
@@ -785,6 +838,14 @@ class CD48 {
       this.writer = null;
     }
     if (this.port !== null) {
+      // Remove disconnect listener before closing
+      if (this._boundHandleDisconnect !== null) {
+        this.port.removeEventListener(
+          'disconnect',
+          this._boundHandleDisconnect
+        );
+        this._boundHandleDisconnect = null;
+      }
       try {
         await this.port.close();
       } catch {

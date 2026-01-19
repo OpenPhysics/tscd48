@@ -25,7 +25,7 @@ export const CONNECTION_INIT_DELAY_MS = 500;
 export const READ_TIMEOUT_INTERVAL_MS = 100;
 
 /** Number of automatic reconnection attempts */
-export const RECONNECT_ATTEMPTS = 3;
+export const RECONNECT_ATTEMPTS = 5;
 
 /** Delay between reconnection attempts (milliseconds) */
 export const RECONNECT_DELAY_MS = 1000;
