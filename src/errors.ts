@@ -149,3 +149,16 @@ export class CommunicationError extends CD48Error {
     this.originalError = cause;
   }
 }
+
+/**
+ * Error thrown when an operation is aborted
+ */
+export class OperationAbortedError extends CD48Error {
+  public override readonly name: string = 'OperationAbortedError';
+  public readonly operation: string;
+
+  constructor(operation: string) {
+    super(`Operation '${operation}' was aborted`);
+    this.operation = operation;
+  }
+}

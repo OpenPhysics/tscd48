@@ -24,6 +24,7 @@ import {
   CommandTimeoutError,
   InvalidResponseError,
   CommunicationError,
+  OperationAbortedError,
 } from './errors.js';
 
 import {
@@ -55,6 +56,8 @@ import {
   DEFAULT_MEASUREMENT_DURATION,
   MILLISECONDS_PER_SECOND,
   PERCENT_CONVERSION,
+  DEFAULT_COMMAND_RETRIES,
+  DEFAULT_RETRY_DELAY_MS,
 } from './constants.js';
 
 /**
@@ -73,6 +76,42 @@ export interface CD48Options {
   reconnectDelay?: number;
   /** Minimum ms between commands (default: 0) */
   rateLimitMs?: number;
+  /** Number of retries for failed commands (default: 0) */
+  commandRetries?: number;
+  /** Delay between retries in ms (default: 100) */
+  retryDelay?: number;
+}
+
+/**
+ * Connection state for the CD48 device
+ */
+export type ConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'reconnecting';
+
+/**
+ * Connection state change event data
+ */
+export interface ConnectionStateChangeData {
+  readonly previousState: ConnectionState;
+  readonly currentState: ConnectionState;
+}
+
+/**
+ * Connection state change callback type
+ */
+export type ConnectionStateChangeCallback = (
+  data: ConnectionStateChangeData
+) => void;
+
+/**
+ * Measurement options with abort support
+ */
+export interface MeasurementOptions {
+  /** AbortSignal to cancel the measurement */
+  signal?: AbortSignal;
 }
 
 /**
@@ -130,7 +169,7 @@ export interface CoincidenceUncertainty {
 /**
  * Coincidence measurement options
  */
-export interface CoincidenceMeasurementOptions {
+export interface CoincidenceMeasurementOptions extends MeasurementOptions {
   /** Measurement duration in seconds */
   duration?: number;
   /** Channel for singles A (default: 0) */
@@ -207,6 +246,8 @@ class CD48 {
   private readonly reconnectAttempts: number;
   private readonly reconnectDelay: number;
   private readonly rateLimitMs: number;
+  private readonly commandRetries: number;
+  private readonly retryDelay: number;
   private port: SerialPort | null;
   private reader: ReadableStreamDefaultReader<string> | null;
   private writer: WritableStreamDefaultWriter<string> | null;
@@ -214,9 +255,11 @@ class CD48 {
   private writableStreamClosed: Promise<void> | null;
   private _lastCommandTime: number;
   private _reconnecting: boolean;
+  private _connectionState: ConnectionState;
   private _onDisconnect: DisconnectCallback | null;
   private _onReconnect: ReconnectCallback | null;
   private _onReconnectFailed: ReconnectFailedCallback | null;
+  private _onConnectionStateChange: ConnectionStateChangeCallback | null;
   private _boundHandleDisconnect: (() => void) | null;
 
   /**
@@ -230,6 +273,8 @@ class CD48 {
     this.reconnectAttempts = options.reconnectAttempts ?? RECONNECT_ATTEMPTS;
     this.reconnectDelay = options.reconnectDelay ?? RECONNECT_DELAY_MS;
     this.rateLimitMs = options.rateLimitMs ?? 0;
+    this.commandRetries = options.commandRetries ?? DEFAULT_COMMAND_RETRIES;
+    this.retryDelay = options.retryDelay ?? DEFAULT_RETRY_DELAY_MS;
     this.port = null;
     this.reader = null;
     this.writer = null;
@@ -237,9 +282,11 @@ class CD48 {
     this.writableStreamClosed = null;
     this._lastCommandTime = 0;
     this._reconnecting = false;
+    this._connectionState = 'disconnected';
     this._onDisconnect = null;
     this._onReconnect = null;
     this._onReconnectFailed = null;
+    this._onConnectionStateChange = null;
     this._boundHandleDisconnect = null;
   }
 
@@ -285,6 +332,41 @@ class CD48 {
   }
 
   /**
+   * Set callback for connection state change events.
+   * @param callback - Function called when connection state changes
+   */
+  public onConnectionStateChange(
+    callback: ConnectionStateChangeCallback
+  ): void {
+    this._onConnectionStateChange = callback;
+  }
+
+  /**
+   * Get current connection state.
+   * @returns Current connection state
+   */
+  public getConnectionState(): ConnectionState {
+    return this._connectionState;
+  }
+
+  /**
+   * Update connection state and notify listeners.
+   * @param newState - New connection state
+   */
+  private _setConnectionState(newState: ConnectionState): void {
+    const previousState = this._connectionState;
+    if (previousState !== newState) {
+      this._connectionState = newState;
+      if (this._onConnectionStateChange !== null) {
+        this._onConnectionStateChange({
+          previousState,
+          currentState: newState,
+        });
+      }
+    }
+  }
+
+  /**
    * Connect to the CD48 device.
    * Opens a serial port picker dialog for the user.
    * @returns True if connected successfully
@@ -294,6 +376,8 @@ class CD48 {
       throw new UnsupportedBrowserError();
     }
 
+    this._setConnectionState('connecting');
+
     try {
       // Request port with Cypress VID filter
       this.port = await navigator.serial.requestPort({
@@ -301,8 +385,10 @@ class CD48 {
       });
 
       await this._setupConnection();
+      this._setConnectionState('connected');
       return true;
     } catch (error) {
+      this._setConnectionState('disconnected');
       if (error instanceof Error && error.name === 'NotFoundError') {
         throw new DeviceSelectionCancelledError();
       }
@@ -323,6 +409,7 @@ class CD48 {
     }
 
     this._reconnecting = true;
+    this._setConnectionState('reconnecting');
 
     try {
       // Clean up existing connection
@@ -336,13 +423,18 @@ class CD48 {
       });
 
       if (cd48Port === undefined) {
+        this._setConnectionState('disconnected');
         throw new ConnectionError('No previously connected CD48 device found');
       }
 
       this.port = cd48Port;
       await this._setupConnection();
+      this._setConnectionState('connected');
 
       return true;
+    } catch (error) {
+      this._setConnectionState('disconnected');
+      throw error;
     } finally {
       this._reconnecting = false;
     }
@@ -353,6 +445,7 @@ class CD48 {
    */
   public async disconnect(): Promise<void> {
     await this._cleanupConnection();
+    this._setConnectionState('disconnected');
     if (this._onDisconnect !== null) {
       this._onDisconnect();
     }
@@ -375,11 +468,75 @@ class CD48 {
   }
 
   /**
+   * Sleep for specified milliseconds with abort support.
+   * @param ms - Milliseconds to sleep
+   * @param signal - Optional AbortSignal to cancel the sleep
+   * @throws OperationAbortedError if aborted
+   */
+  public async sleepWithAbort(ms: number, signal?: AbortSignal): Promise<void> {
+    if (signal?.aborted) {
+      throw new OperationAbortedError('sleep');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(resolve, ms);
+
+      if (signal !== undefined) {
+        const abortHandler = (): void => {
+          clearTimeout(timeoutId);
+          reject(new OperationAbortedError('sleep'));
+        };
+
+        signal.addEventListener('abort', abortHandler, { once: true });
+
+        // Clean up abort listener after sleep completes
+        setTimeout(() => {
+          signal.removeEventListener('abort', abortHandler);
+        }, ms + 1);
+      }
+    });
+  }
+
+  /**
    * Send a command and read the response.
+   * Includes automatic retry logic for transient errors.
    * @param command - Command to send
    * @returns Response from device
    */
   public async sendCommand(command: string): Promise<string> {
+    let lastError: Error | undefined;
+
+    for (let attempt = 0; attempt <= this.commandRetries; attempt++) {
+      try {
+        return await this._sendCommandOnce(command);
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // Don't retry for non-retryable errors
+        if (
+          error instanceof NotConnectedError ||
+          error instanceof InvalidResponseError
+        ) {
+          throw error;
+        }
+
+        // If we have retries left, wait and try again
+        if (attempt < this.commandRetries) {
+          await this.sleep(this.retryDelay * (attempt + 1));
+        }
+      }
+    }
+
+    // All retries exhausted, throw the last error
+    throw lastError ?? new CommunicationError('Unknown error after retries');
+  }
+
+  /**
+   * Send a command once without retry logic.
+   * @param command - Command to send
+   * @returns Response from device
+   */
+  private async _sendCommandOnce(command: string): Promise<string> {
     if (!this.isConnected()) {
       // Attempt auto-reconnect if enabled
       if (this.autoReconnect) {
@@ -609,16 +766,27 @@ class CD48 {
    * Measure count rate on a channel with Poisson uncertainty.
    * @param channel - Channel number (0-7)
    * @param duration - Measurement duration in seconds
+   * @param options - Optional measurement options including AbortSignal
    * @returns Rate measurement result with uncertainties
+   * @throws OperationAbortedError if aborted via signal
    */
   public async measureRate(
     channel = 0,
-    duration = DEFAULT_MEASUREMENT_DURATION
+    duration = DEFAULT_MEASUREMENT_DURATION,
+    options?: MeasurementOptions
   ): Promise<RateMeasurement> {
     validateChannel(channel);
 
+    // Check if already aborted
+    if (options?.signal?.aborted) {
+      throw new OperationAbortedError('measureRate');
+    }
+
     await this.clearCounts();
-    await this.sleep(duration * MILLISECONDS_PER_SECOND);
+    await this.sleepWithAbort(
+      duration * MILLISECONDS_PER_SECOND,
+      options?.signal
+    );
     const data = await this.getCounts(false);
     const counts = data.counts[channel] ?? 0;
     const rate = counts / duration;
@@ -648,6 +816,7 @@ class CD48 {
    * Measure coincidence rate with accidental correction and uncertainties.
    * @param options - Measurement options
    * @returns Coincidence measurement result with uncertainties
+   * @throws OperationAbortedError if aborted via signal
    */
   public async measureCoincidenceRate(
     options: CoincidenceMeasurementOptions = {}
@@ -658,10 +827,16 @@ class CD48 {
       singlesBChannel = DEFAULT_SINGLES_B_CHANNEL,
       coincidenceChannel = DEFAULT_COINCIDENCE_CHANNEL,
       coincidenceWindow = COINCIDENCE_WINDOW_SECONDS,
+      signal,
     } = options;
 
+    // Check if already aborted
+    if (signal?.aborted) {
+      throw new OperationAbortedError('measureCoincidenceRate');
+    }
+
     await this.clearCounts();
-    await this.sleep(duration * MILLISECONDS_PER_SECOND);
+    await this.sleepWithAbort(duration * MILLISECONDS_PER_SECOND, signal);
     const data = await this.getCounts(false);
 
     const singlesA = data.counts[singlesAChannel] ?? 0;

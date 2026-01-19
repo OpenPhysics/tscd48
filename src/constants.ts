@@ -30,6 +30,12 @@ export const RECONNECT_ATTEMPTS = 5;
 /** Delay between reconnection attempts (milliseconds) */
 export const RECONNECT_DELAY_MS = 1000;
 
+/** Default number of command retries for transient errors */
+export const DEFAULT_COMMAND_RETRIES = 0;
+
+/** Default delay between command retries (milliseconds) */
+export const DEFAULT_RETRY_DELAY_MS = 100;
+
 // ============================================================================
 // Hardware Specifications
 // ============================================================================

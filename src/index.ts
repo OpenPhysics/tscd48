@@ -10,6 +10,10 @@ export { default as CD48, default } from './cd48.js';
 // Export types from CD48
 export type {
   CD48Options,
+  ConnectionState,
+  ConnectionStateChangeData,
+  ConnectionStateChangeCallback,
+  MeasurementOptions,
   ChannelInputs,
   CountData,
   MeasurementUncertainty,
@@ -19,6 +23,7 @@ export type {
   CoincidenceMeasurement,
   DisconnectCallback,
   ReconnectCallback,
+  ReconnectFailedCallback,
 } from './cd48.js';
 
 // Error classes
@@ -34,6 +39,7 @@ export {
   InvalidChannelError,
   InvalidVoltageError,
   CommunicationError,
+  OperationAbortedError,
 } from './errors.js';
 
 // Validation utilities
@@ -84,6 +90,7 @@ export type {
 
 // Calibration utilities
 export {
+  CALIBRATION_PROFILE_VERSION,
   CalibrationProfile,
   CalibrationStorage,
   VoltageCalibration,
