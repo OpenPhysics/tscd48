@@ -109,10 +109,10 @@ jobs:
           cd release
 
           # Create zip archive
-          zip -r ../jscd48-${GITHUB_REF#refs/tags/v}.zip .
+          zip -r ../tscd48-${GITHUB_REF#refs/tags/v}.zip .
 
           # Create tarball
-          tar -czf ../jscd48-${GITHUB_REF#refs/tags/v}.tar.gz .
+          tar -czf ../tscd48-${GITHUB_REF#refs/tags/v}.tar.gz .
 
           cd ..
           ls -lh *.zip *.tar.gz
@@ -156,7 +156,7 @@ jobs:
             CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d')
 
             if [ -z "$CHANGELOG" ]; then
-              CHANGELOG="See [CHANGELOG.md](https://github.com/OpenPhysics/jscd48/blob/main/CHANGELOG.md) for details."
+              CHANGELOG="See [CHANGELOG.md](https://github.com/OpenPhysics/tscd48/blob/main/CHANGELOG.md) for details."
             fi
           else
             CHANGELOG="No changelog available."
@@ -178,8 +178,8 @@ jobs:
           draft: false
           prerelease: ${{ contains(steps.get_version.outputs.VERSION, '-') }}
           files: |
-            jscd48-${{ steps.get_version.outputs.VERSION }}.zip
-            jscd48-${{ steps.get_version.outputs.VERSION }}.tar.gz
+            tscd48-${{ steps.get_version.outputs.VERSION }}.zip
+            tscd48-${{ steps.get_version.outputs.VERSION }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
 
@@ -213,9 +213,9 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "## Package Published! 📦" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Successfully published jscd48@$VERSION to npm" >> $GITHUB_STEP_SUMMARY
+          echo "Successfully published tscd48@$VERSION to npm" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install with:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "npm install jscd48@$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "npm install tscd48@$VERSION" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

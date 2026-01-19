@@ -1,13 +1,13 @@
-# jscd48 - TypeScript Interface for CD48 Coincidence Counter
+# tscd48 - TypeScript Interface for CD48 Coincidence Counter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/OpenPhysics/jscd48/workflows/CI/badge.svg)](https://github.com/OpenPhysics/jscd48/actions)
-[![codecov](https://codecov.io/gh/OpenPhysics/jscd48/branch/main/graph/badge.svg)](https://codecov.io/gh/OpenPhysics/jscd48)
-[![npm version](https://img.shields.io/npm/v/jscd48.svg)](https://www.npmjs.com/package/jscd48)
+[![CI](https://github.com/OpenPhysics/tscd48/workflows/CI/badge.svg)](https://github.com/OpenPhysics/tscd48/actions)
+[![codecov](https://codecov.io/gh/OpenPhysics/tscd48/branch/main/graph/badge.svg)](https://codecov.io/gh/OpenPhysics/tscd48)
+[![npm version](https://img.shields.io/npm/v/tscd48.svg)](https://www.npmjs.com/package/tscd48)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6.svg)](https://www.typescriptlang.org/)
 [![Chrome](https://img.shields.io/badge/Chrome-89+-green.svg)](https://www.google.com/chrome/)
 [![Edge](https://img.shields.io/badge/Edge-89+-blue.svg)](https://www.microsoft.com/edge)
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://openphysics.github.io/jscd48/)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://openphysics.github.io/tscd48/)
 
 A comprehensive browser-based TypeScript library and web interface for controlling the [Red Dog Physics CD48 Coincidence Counter](https://www.reddogphysics.com/cd48.html) using the Web Serial API.
 
@@ -27,7 +27,7 @@ A comprehensive browser-based TypeScript library and web interface for controlli
 
 ## 🚀 Live Demo
 
-**[https://openphysics.github.io/jscd48/](https://openphysics.github.io/jscd48/)**
+**[https://openphysics.github.io/tscd48/](https://openphysics.github.io/tscd48/)**
 
 Open the link above in Chrome or Edge, connect your CD48 via USB, and click "Connect".
 
@@ -38,15 +38,21 @@ Open the link above in Chrome or Edge, connect your CD48 via USB, and click "Con
 Install from npm for use in your projects:
 
 ```bash
-npm install jscd48
+npm install tscd48
 ```
 
 **TypeScript / ES Modules:**
 
 ```typescript
-import CD48, { type CD48Options, type CountData } from 'jscd48';
-import { Statistics, Histogram, TimeSeries } from 'jscd48/analysis';
-import { CalibrationWizard, type CalibrationProfile } from 'jscd48/calibration';
+import CD48, {
+  type CD48Options,
+  type CountData,
+  Statistics,
+  Histogram,
+  TimeSeries,
+  CalibrationWizard,
+  type CalibrationProfile,
+} from 'tscd48';
 
 const options: CD48Options = {
   baudRate: 115200,
@@ -64,7 +70,7 @@ console.log(counts.counts); // number[]
 **JavaScript / CommonJS:**
 
 ```javascript
-const CD48 = require('jscd48');
+const CD48 = require('tscd48');
 const cd48 = new CD48();
 await cd48.connect();
 ```
@@ -75,7 +81,7 @@ Use via unpkg CDN for quick prototyping:
 
 ```html
 <!-- Minified UMD bundle -->
-<script src="https://unpkg.com/jscd48@latest/dist/cd48.umd.min.js"></script>
+<script src="https://unpkg.com/tscd48@latest/dist/cd48.umd.min.js"></script>
 <script>
   const cd48 = new CD48();
 </script>
@@ -85,7 +91,7 @@ Use via unpkg CDN for quick prototyping:
 
 ```html
 <script type="module">
-  import CD48 from 'https://unpkg.com/jscd48@latest/dist/cd48.esm.min.js';
+  import CD48 from 'https://unpkg.com/tscd48@latest/dist/cd48.esm.min.js';
   const cd48 = new CD48();
 </script>
 ```
@@ -188,7 +194,10 @@ await cd48.disconnect();
 ### Statistical Analysis Example
 
 ```javascript
-import { Statistics, Histogram } from 'jscd48/analysis';
+import CD48, { Statistics, Histogram } from 'tscd48';
+
+const cd48 = new CD48();
+await cd48.connect();
 
 // Collect data
 const samples = [];
@@ -210,7 +219,10 @@ console.log('Histogram:', hist);
 ### Calibration Example
 
 ```javascript
-import { CalibrationWizard } from 'jscd48/calibration';
+import CD48, { CalibrationWizard } from 'tscd48';
+
+const cd48 = new CD48();
+await cd48.connect();
 
 const wizard = new CalibrationWizard(cd48);
 
@@ -280,7 +292,7 @@ const result = await cd48.measureCoincidenceRate({
 #### Statistics
 
 ```javascript
-import { Statistics } from 'jscd48/analysis';
+import { Statistics } from 'tscd48';
 
 Statistics.mean(data);
 Statistics.median(data);
@@ -294,7 +306,7 @@ Statistics.summary(data); // All stats at once
 #### Histogram
 
 ```javascript
-import { Histogram } from 'jscd48/analysis';
+import { Histogram } from 'tscd48';
 
 Histogram.create(data, { bins: 10 });
 Histogram.autobin(data); // Sturges' rule
@@ -305,7 +317,7 @@ Histogram.cumulative(data); // Cumulative histogram
 #### Time-Series
 
 ```javascript
-import { TimeSeries } from 'jscd48/analysis';
+import { TimeSeries } from 'tscd48';
 
 TimeSeries.movingAverage(data, window);
 TimeSeries.exponentialMovingAverage(data, alpha);
@@ -323,7 +335,7 @@ import {
   CalibrationStorage,
   VoltageCalibration,
   CalibrationWizard,
-} from 'jscd48/calibration';
+} from 'tscd48';
 
 // Create profile
 const profile = new CalibrationProfile({ name: 'My Profile' });
@@ -366,25 +378,11 @@ dist/
     "types": "./dist/index.d.ts",
     "import": "./dist/cd48.esm.js",
     "require": "./dist/cd48.umd.js"
-  },
-  "./analysis": {
-    "types": "./dist/analysis.d.ts",
-    "import": "./dist/analysis.js"
-  },
-  "./calibration": {
-    "types": "./dist/calibration.d.ts",
-    "import": "./dist/calibration.js"
-  },
-  "./errors": {
-    "types": "./dist/errors.d.ts",
-    "import": "./dist/errors.js"
-  },
-  "./validation": {
-    "types": "./dist/validation.d.ts",
-    "import": "./dist/validation.js"
   }
 }
 ```
+
+All modules (analysis, calibration, errors, validation, dev-utils) are exported from the main entry point.
 
 ## 🧪 Testing
 
@@ -433,8 +431,8 @@ See [tests/README.md](tests/README.md) for detailed testing documentation.
 ### Setup
 
 ```bash
-git clone https://github.com/OpenPhysics/jscd48.git
-cd jscd48
+git clone https://github.com/OpenPhysics/tscd48.git
+cd tscd48
 npm install
 ```
 
@@ -475,7 +473,7 @@ npm run commit       # Interactive commit (guided)
 ### Project Structure
 
 ```
-jscd48/
+tscd48/
 ├── src/                     # TypeScript source files
 │   ├── cd48.ts                 # Main library
 │   ├── analysis.ts             # Statistical analysis tools
@@ -595,8 +593,8 @@ Quick start:
 
 ```bash
 # Fork and clone
-git clone https://github.com/YOUR-USERNAME/jscd48.git
-cd jscd48
+git clone https://github.com/YOUR-USERNAME/tscd48.git
+cd tscd48
 
 # Install (sets up Git hooks)
 npm install

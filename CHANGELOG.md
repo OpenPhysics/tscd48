@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New Module Structure**: Source files moved from root to `src/` directory
 - **New Build Output**: Built files now output to `dist/` directory instead of root
 - **Import Path Changes**:
-  - Old: `import CD48 from 'jscd48/cd48.js'`
-  - New: `import { CD48 } from 'jscd48'` or `import CD48 from 'jscd48'`
+  - Old: `import CD48 from 'tscd48/cd48.js'`
+  - New: `import { CD48 } from 'tscd48'` or `import CD48 from 'tscd48'`
 
 ### Added
 
@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Individual module exports (`jscd48/errors`, `jscd48/validation`, etc.) - use main export instead
+- Individual module exports (`tscd48/errors`, `tscd48/validation`, etc.) - use main export instead
 - Root-level JavaScript files (now in `src/` as TypeScript)
 
 ### Migration Guide
@@ -58,9 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 import CD48 from './cd48.js';
 
 // After (v2.0)
-import { CD48 } from 'jscd48';
+import { CD48 } from 'tscd48';
 // or
-import CD48 from 'jscd48';
+import CD48 from 'tscd48';
 
 // New: Use branded types for type safety
 import {
@@ -68,7 +68,7 @@ import {
   createVoltage,
   type Channel,
   type Voltage,
-} from 'jscd48';
+} from 'tscd48';
 const ch: Channel = createChannel(3); // Validated at runtime, typed at compile time
 const v: Voltage = createVoltage(2.5); // Throws if invalid
 ```
@@ -131,7 +131,7 @@ const v: Voltage = createVoltage(2.5); // Throws if invalid
 - MIT License
 - README.md with comprehensive documentation
 
-[Unreleased]: https://github.com/OpenPhysics/jscd48/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/OpenPhysics/jscd48/compare/v1.0.0...v2.0.0
-[1.0.0]: https://github.com/OpenPhysics/jscd48/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/OpenPhysics/jscd48/releases/tag/v0.1.0
+[Unreleased]: https://github.com/OpenPhysics/tscd48/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/OpenPhysics/tscd48/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/OpenPhysics/tscd48/compare/v0.1.0...v1.0.0
+[0.1.0]: https://github.com/OpenPhysics/tscd48/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 # Error Handling Guide
 
-This document describes the error handling patterns and custom error types in the jscd48 library.
+This document describes the error handling patterns and custom error types in the tscd48 library.
 
 ## Error Classes
 

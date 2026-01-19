@@ -1,6 +1,6 @@
-# Contributing to jscd48
+# Contributing to tscd48
 
-Thank you for your interest in contributing to jscd48! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to tscd48! This document provides guidelines and instructions for contributing to the project.
 
 ## Code of Conduct
 
@@ -22,14 +22,14 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 2. **Clone your fork** locally:
 
    ```bash
-   git clone https://github.com/YOUR-USERNAME/jscd48.git
-   cd jscd48
+   git clone https://github.com/YOUR-USERNAME/tscd48.git
+   cd tscd48
    ```
 
 3. **Add the upstream repository**:
 
    ```bash
-   git remote add upstream https://github.com/OpenPhysics/jscd48.git
+   git remote add upstream https://github.com/OpenPhysics/tscd48.git
    ```
 
 4. **Install dependencies**:
@@ -279,7 +279,7 @@ npm test -- --watch
 ## Project Structure
 
 ```
-jscd48/
+tscd48/
 ├── cd48.js              # Main library
 ├── cd48.d.ts            # TypeScript definitions
 ├── index.html           # Web interface
@@ -328,7 +328,7 @@ When reporting bugs, please include:
 5. **Environment**:
    - Browser and version
    - Operating system
-   - jscd48 version
+   - tscd48 version
    - CD48 firmware version (if applicable)
 6. **Screenshots** - If applicable
 7. **Error messages** - Full error messages and stack traces
@@ -351,7 +351,7 @@ For feature requests, please include:
 
 ## License
 
-By contributing to jscd48, you agree that your contributions will be licensed under the MIT License.
+By contributing to tscd48, you agree that your contributions will be licensed under the MIT License.
 
 ## Recognition
 
@@ -360,4 +360,4 @@ Contributors will be recognized in:
 - GitHub contributors list
 - Release notes for significant contributions
 
-Thank you for contributing to jscd48!
+Thank you for contributing to tscd48!
