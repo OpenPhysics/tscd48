@@ -512,7 +512,7 @@ class CD48 {
    * @throws OperationAbortedError if aborted
    */
   public async sleepWithAbort(ms: number, signal?: AbortSignal): Promise<void> {
-    if (signal?.aborted) {
+    if (signal?.aborted === true) {
       throw new OperationAbortedError('sleep');
     }
 
@@ -912,7 +912,7 @@ class CD48 {
     validateChannel(channel);
 
     // Check if already aborted
-    if (options?.signal?.aborted) {
+    if (options?.signal?.aborted === true) {
       throw new OperationAbortedError('measureRate');
     }
 
@@ -965,7 +965,7 @@ class CD48 {
     } = options;
 
     // Check if already aborted
-    if (signal?.aborted) {
+    if (signal?.aborted === true) {
       throw new OperationAbortedError('measureCoincidenceRate');
     }
 

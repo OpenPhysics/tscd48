@@ -17,6 +17,7 @@ import {
   EXPECTED_CHANNEL_COUNT,
   DEFAULT_BACKGROUND_DURATION,
   DEFAULT_CALIBRATION_DURATION,
+  DEFAULT_SETTLING_TIME_MS,
 } from './constants.js';
 
 /** Current calibration profile schema version */
@@ -41,7 +42,7 @@ export interface CalibrationProfileOptions {
  */
 export interface CalibrationProfileJSON {
   /** Schema version for migration support */
-  version: number;
+  version?: number;
   name: string;
   description: string;
   date: string;
@@ -659,7 +660,7 @@ export class CalibrationWizard {
     channel: number,
     testThresholds: number[],
     duration = DEFAULT_CALIBRATION_DURATION,
-    settlingTimeMs = 100
+    settlingTimeMs = DEFAULT_SETTLING_TIME_MS
   ): Promise<OptimalThresholdResult> {
     const results: Array<{ threshold: number; rate: number }> = [];
 
