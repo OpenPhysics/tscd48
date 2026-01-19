@@ -35,7 +35,6 @@
   "scripts": {
     "start": "npx serve .",
     "dev": "vite",
-    "dev:legacy": "npx serve . --cors",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && npm run build:types && npm run build:unminified && npm run build:minified",
@@ -110,7 +109,6 @@
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.9",
     "@types/w3c-web-serial": "^1.0.8",
-    "@vitejs/plugin-legacy": "^7.2.1",
     "@vitest/coverage-v8": "^4.0.17",
     "@vitest/ui": "^4.0.17",
     "commitizen": "^4.3.0",
