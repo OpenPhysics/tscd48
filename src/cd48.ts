@@ -58,6 +58,7 @@ import {
   PERCENT_CONVERSION,
   DEFAULT_COMMAND_RETRIES,
   DEFAULT_RETRY_DELAY_MS,
+  WEB_LOCK_NAME,
 } from './constants.js';
 
 /**
@@ -80,6 +81,8 @@ export interface CD48Options {
   commandRetries?: number;
   /** Delay between retries in ms (default: 100) */
   retryDelay?: number;
+  /** Use Web Locks API to prevent concurrent commands (default: false) */
+  useWebLocks?: boolean;
 }
 
 /**
@@ -248,6 +251,7 @@ class CD48 {
   private readonly rateLimitMs: number;
   private readonly commandRetries: number;
   private readonly retryDelay: number;
+  private readonly useWebLocks: boolean;
   private port: SerialPort | null;
   private reader: ReadableStreamDefaultReader<string> | null;
   private writer: WritableStreamDefaultWriter<string> | null;
@@ -275,6 +279,7 @@ class CD48 {
     this.rateLimitMs = options.rateLimitMs ?? 0;
     this.commandRetries = options.commandRetries ?? DEFAULT_COMMAND_RETRIES;
     this.retryDelay = options.retryDelay ?? DEFAULT_RETRY_DELAY_MS;
+    this.useWebLocks = options.useWebLocks ?? false;
     this.port = null;
     this.reader = null;
     this.writer = null;
@@ -296,6 +301,14 @@ class CD48 {
    */
   public static isSupported(): boolean {
     return 'serial' in navigator;
+  }
+
+  /**
+   * Check if Web Locks API is supported.
+   * @returns True if supported
+   */
+  public static isWebLocksSupported(): boolean {
+    return 'locks' in navigator;
   }
 
   /**
@@ -500,10 +513,26 @@ class CD48 {
   /**
    * Send a command and read the response.
    * Includes automatic retry logic for transient errors.
+   * Uses Web Locks API when enabled to prevent concurrent commands.
    * @param command - Command to send
    * @returns Response from device
    */
   public async sendCommand(command: string): Promise<string> {
+    // Use Web Locks if enabled and supported
+    if (this.useWebLocks && CD48.isWebLocksSupported()) {
+      return navigator.locks.request(WEB_LOCK_NAME, async () => {
+        return this._sendCommandWithRetry(command);
+      });
+    }
+    return this._sendCommandWithRetry(command);
+  }
+
+  /**
+   * Send a command with retry logic.
+   * @param command - Command to send
+   * @returns Response from device
+   */
+  private async _sendCommandWithRetry(command: string): Promise<string> {
     let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= this.commandRetries; attempt++) {

@@ -36,6 +36,9 @@ export const DEFAULT_COMMAND_RETRIES = 0;
 /** Default delay between command retries (milliseconds) */
 export const DEFAULT_RETRY_DELAY_MS = 100;
 
+/** Web Locks API lock name for CD48 serial communication */
+export const WEB_LOCK_NAME = 'cd48-serial-lock';
+
 // ============================================================================
 // Hardware Specifications
 // ============================================================================
