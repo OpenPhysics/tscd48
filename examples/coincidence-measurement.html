@@ -8,13 +8,43 @@
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         max-width: 800px;
-        margin: 50px auto;
+        margin: 0 auto;
         padding: 20px;
-        background: #1a1a2e;
+        background: linear-gradient(135deg, #0f0f1e 0%, #1a1f3a 100%);
+        min-height: 100vh;
         color: #eee;
+      }
+      .nav-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        padding: 12px;
+        background: #1a1f3a;
+        border-radius: 8px;
+        flex-wrap: wrap;
+        border: 1px solid #2a2f4a;
+      }
+      .nav-bar a {
+        color: #3b82f6;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+      .nav-bar a:hover {
+        background: #2a2f4a;
+        color: #e94560;
       }
       h1 {
         color: #e94560;
+      }
+      h2 {
+        color: #3b82f6;
+      }
+      p {
+        color: #aaa;
       }
       button {
         padding: 10px 20px;
@@ -31,7 +61,7 @@
         cursor: not-allowed;
       }
       button.secondary {
-        background: #0f3460;
+        background: #3b82f6;
       }
       input {
         padding: 8px;
@@ -44,18 +74,20 @@
       }
       label {
         margin-right: 20px;
+        color: #aaa;
       }
       .results {
         margin-top: 30px;
         padding: 20px;
-        background: #16213e;
+        background: #1a1f3a;
         border-radius: 8px;
+        border: 1px solid #2a2f4a;
       }
       .result-row {
         display: flex;
         justify-content: space-between;
         padding: 10px 0;
-        border-bottom: 1px solid #0f3460;
+        border-bottom: 1px solid #2a2f4a;
       }
       .result-row:last-child {
         border-bottom: none;
@@ -74,16 +106,46 @@
       .progress {
         margin-top: 20px;
         padding: 15px;
-        background: #0f3460;
+        background: #0f0f1e;
         border-radius: 8px;
         text-align: center;
+        border: 1px solid #2a2f4a;
       }
       .hidden {
         display: none;
       }
+      .related-examples {
+        margin-top: 30px;
+        padding: 15px;
+        background: #1a1f3a;
+        border-radius: 8px;
+        border: 1px solid #2a2f4a;
+      }
+      .related-examples h3 {
+        color: #3b82f6;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      .related-examples a {
+        color: #aaa;
+        text-decoration: none;
+        margin-right: 15px;
+        font-size: 14px;
+      }
+      .related-examples a:hover {
+        color: #e94560;
+      }
     </style>
   </head>
   <body>
+    <nav class="nav-bar">
+      <a href="../">Main App</a>
+      <a href="./">All Examples</a>
+      <a href="simple-monitor.html">Simple Monitor</a>
+      <a href="demo-mode.html">Demo Mode</a>
+      <a href="statistical-analysis.html">Statistical Analysis</a>
+    </nav>
+
     <h1>CD48 Coincidence Measurement</h1>
     <p>Measure coincidence rates with automatic accidental correction.</p>
 
@@ -145,6 +207,13 @@
         <span class="result-label">True Coincidence Rate</span>
         <span class="result-value highlight" id="trueRate">-</span>
       </div>
+    </div>
+
+    <div class="related-examples">
+      <h3>Related Examples:</h3>
+      <a href="statistical-analysis.html">Statistical Analysis</a>
+      <a href="calibration-wizard.html">Calibration Wizard</a>
+      <a href="data-export.html">Data Export</a>
     </div>
 
     <script type="module">
