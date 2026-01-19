@@ -222,7 +222,8 @@ describe('CD48', () => {
     let cd48: CD48;
 
     beforeEach(() => {
-      cd48 = new CD48();
+      // Disable auto-reconnect to test immediate error behavior
+      cd48 = new CD48({ autoReconnect: false });
     });
 
     it('should throw error when sending command while not connected', async () => {
@@ -309,7 +310,8 @@ describe('CD48', () => {
     });
 
     it('should throw error when setting trigger level while disconnected', async () => {
-      const disconnectedCd48 = new CD48();
+      // Disable auto-reconnect to test immediate error behavior
+      const disconnectedCd48 = new CD48({ autoReconnect: false });
       await expect(disconnectedCd48.setTriggerLevel(2.0)).rejects.toThrow(
         NotConnectedError
       );

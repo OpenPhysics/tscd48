@@ -43,6 +43,8 @@ interface MockSerialPort {
   readable: MockReadable;
   writable: MockWritable;
   getInfo: Mock<() => { usbVendorId: number; usbProductId: number }>;
+  addEventListener: Mock<(type: string, listener: () => void) => void>;
+  removeEventListener: Mock<(type: string, listener: () => void) => void>;
   _getCommandQueue: () => string[];
   _clearCommandQueue: () => void;
   _setResponse: (command: string, response: string) => void;
@@ -178,6 +180,8 @@ export function createMockSerialPort(
       usbVendorId: 0x04b4,
       usbProductId: 0x0001,
     })),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
     // Internal test helpers
     _getCommandQueue: () => commandQueue,
     _clearCommandQueue: () => {
