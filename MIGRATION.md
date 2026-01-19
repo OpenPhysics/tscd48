@@ -2,21 +2,84 @@
 
 This guide helps you migrate between major versions of tscd48.
 
+## Migrating to v2.0.0
+
+v2.0.0 is a complete TypeScript rewrite of the library.
+
+### Breaking Changes
+
+#### 1. Import Path Changes
+
+The package now uses a single entry point. Individual module exports have been removed:
+
+**Before (v1.x):**
+
+```javascript
+import CD48 from 'tscd48/cd48.js';
+import { Statistics } from 'tscd48/analysis';
+import { CD48Error } from 'tscd48/errors';
+```
+
+**After (v2.0):**
+
+```typescript
+import { CD48 } from 'tscd48';
+// or
+import CD48 from 'tscd48';
+
+// All utilities are now exported from the main entry point
+import {
+  CD48,
+  Statistics,
+  Histogram,
+  TimeSeries,
+  CalibrationWizard,
+  CD48Error,
+  NotConnectedError,
+  validateChannel,
+  createVoltage,
+} from 'tscd48';
+```
+
+#### 2. New Build Output Location
+
+Built files are now in `dist/` directory instead of root:
+
+- ESM: `dist/cd48.esm.js`
+- UMD: `dist/cd48.umd.js`
+
+#### 3. Branded Types for Type Safety
+
+New branded types provide compile-time validation:
+
+```typescript
+import { createChannel, createVoltage, type Channel, type Voltage } from 'tscd48';
+
+// Validated at runtime, typed at compile time
+const ch: Channel = createChannel(3); // Throws if invalid (not 0-7)
+const v: Voltage = createVoltage(2.5); // Throws if invalid (not 0-4.08V)
+```
+
+### Removed Features
+
+- Individual module exports (`tscd48/errors`, `tscd48/validation`, `tscd48/analysis`, etc.)
+- Root-level JavaScript files (now TypeScript in `src/`)
+
 ## Migrating to v1.0.0
 
 ### Breaking Changes
 
 #### 1. Module Exports
 
-The package now uses proper ES module exports. If you were importing via CommonJS, you may need to update your imports:
+The package uses ES module exports:
 
-**Before (CommonJS):**
+**CommonJS:**
 
 ```javascript
 const CD48 = require('tscd48');
 ```
 
-**After (ES Modules):**
+**ES Modules:**
 
 ```javascript
 import CD48 from 'tscd48';
@@ -28,31 +91,9 @@ For CommonJS compatibility, use the UMD bundle:
 const CD48 = require('tscd48/dist/cd48.umd.js');
 ```
 
-#### 2. New Package Exports
-
-Individual modules can now be imported directly:
-
-```javascript
-// Import specific modules
-import { Statistics, Histogram } from 'tscd48/analysis';
-import { CalibrationProfile, CalibrationWizard } from 'tscd48/calibration';
-import { validateChannel, voltageToByte } from 'tscd48/validation';
-import { CD48Error, NotConnectedError } from 'tscd48/errors';
-import { DevLogger, setupDevMode } from 'tscd48/dev-utils';
-```
-
-#### 3. measureRate() Returns Uncertainties
+#### 2. measureRate() Returns Uncertainties
 
 The `measureRate()` method now returns measurement uncertainties:
-
-**Before:**
-
-```javascript
-const result = await cd48.measureRate(0, 1.0);
-// { counts: 1000, duration: 1.0, rate: 1000, channel: 0 }
-```
-
-**After:**
 
 ```javascript
 const result = await cd48.measureRate(0, 1.0);
@@ -69,42 +110,13 @@ const result = await cd48.measureRate(0, 1.0);
 // }
 ```
 
-#### 4. measureCoincidenceRate() Returns Uncertainties
+#### 3. measureCoincidenceRate() Returns Uncertainties
 
-The `measureCoincidenceRate()` method now includes full uncertainty propagation:
+The `measureCoincidenceRate()` method now includes full uncertainty propagation.
 
-**Before:**
+### New Features in v1.0.0
 
-```javascript
-const result = await cd48.measureCoincidenceRate({ duration: 10 });
-// { singlesA, singlesB, coincidences, rateA, rateB, ... }
-```
-
-**After:**
-
-```javascript
-const result = await cd48.measureCoincidenceRate({ duration: 10 });
-// {
-//   singlesA, singlesB, coincidences,
-//   rateA, rateB, coincidenceRate, accidentalRate, trueCoincidenceRate,
-//   uncertainty: {
-//     singlesA: ...,
-//     singlesB: ...,
-//     coincidences: ...,
-//     rateA: ...,
-//     rateB: ...,
-//     coincidenceRate: ...,
-//     accidentalRate: ...,
-//     trueCoincidenceRate: ...
-//   }
-// }
-```
-
-### New Features
-
-#### 1. Auto-Reconnection
-
-Enable automatic reconnection when the device disconnects:
+#### Auto-Reconnection
 
 ```javascript
 const cd48 = new CD48({
@@ -112,19 +124,9 @@ const cd48 = new CD48({
   reconnectAttempts: 3,
   reconnectDelay: 1000,
 });
-
-cd48.onDisconnect(() => {
-  console.log('Device disconnected, attempting to reconnect...');
-});
-
-cd48.onReconnect(() => {
-  console.log('Successfully reconnected!');
-});
 ```
 
-#### 2. Rate Limiting
-
-Prevent command flooding with built-in rate limiting:
+#### Rate Limiting
 
 ```javascript
 const cd48 = new CD48({
@@ -132,39 +134,13 @@ const cd48 = new CD48({
 });
 ```
 
-#### 3. Manual Reconnection
-
-Reconnect to a previously connected device without user interaction:
-
-```javascript
-// After initial connection and disconnect
-await cd48.reconnect();
-```
-
-### Deprecated Features
-
-None in this release.
-
-### Removed Features
-
-None in this release.
-
-## Migrating from Pre-1.0 Development Versions
-
-If you were using development versions before the official 1.0 release:
-
-1. **Update all imports** to use the new export paths
-2. **Update error handling** to use the new error classes from `tscd48/errors`
-3. **Review measurement code** to handle the new uncertainty values
-4. **Test auto-reconnection** if you were implementing manual reconnection logic
-
 ## TypeScript Support
 
-Full TypeScript definitions are now included:
+Full TypeScript definitions are included and auto-generated from source:
 
 ```typescript
 import CD48 from 'tscd48';
-import type { CD48Options, RateMeasurement } from 'tscd48';
+import type { CD48Options, RateMeasurement, CountData } from 'tscd48';
 
 const options: CD48Options = {
   baudRate: 115200,
@@ -173,13 +149,6 @@ const options: CD48Options = {
 
 const cd48 = new CD48(options);
 const result: RateMeasurement = await cd48.measureRate(0, 1.0);
-```
-
-Type definitions for sub-modules:
-
-```typescript
-import type { Statistics } from 'tscd48/analysis';
-import type { CalibrationProfile } from 'tscd48/calibration';
 ```
 
 ## Getting Help
