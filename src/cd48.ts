@@ -346,6 +346,45 @@ class CD48 {
   }
 
   /**
+   * Parse firmware version string into components.
+   * Handles formats like "CD48 v1.2.3", "1.2.3", "v1.2", etc.
+   * @param versionString - Raw version string from device
+   * @returns Parsed version components
+   */
+  public static parseFirmwareVersion(versionString: string): {
+    major: number;
+    minor: number;
+    patch: number;
+  } {
+    // Extract version number pattern (e.g., "1.2.3" or "1.2")
+    const match = versionString.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    if (match !== null) {
+      return {
+        major: parseInt(match[1] ?? '0', DECIMAL_RADIX),
+        minor: parseInt(match[2] ?? '0', DECIMAL_RADIX),
+        patch: parseInt(match[3] ?? '0', DECIMAL_RADIX),
+      };
+    }
+    // If no pattern found, return zeros
+    return { major: 0, minor: 0, patch: 0 };
+  }
+
+  /**
+   * Compare two firmware versions.
+   * @param a - First version
+   * @param b - Second version
+   * @returns Negative if a < b, positive if a > b, zero if equal
+   */
+  public static compareFirmwareVersions(
+    a: { major: number; minor: number; patch: number },
+    b: { major: number; minor: number; patch: number }
+  ): number {
+    if (a.major !== b.major) return a.major - b.major;
+    if (a.minor !== b.minor) return a.minor - b.minor;
+    return a.patch - b.patch;
+  }
+
+  /**
    * Set callback for disconnect events.
    * @param callback - Function called on disconnect
    */
@@ -385,23 +424,6 @@ class CD48 {
    */
   public getConnectionState(): ConnectionState {
     return this._connectionState;
-  }
-
-  /**
-   * Update connection state and notify listeners.
-   * @param newState - New connection state
-   */
-  private _setConnectionState(newState: ConnectionState): void {
-    const previousState = this._connectionState;
-    if (previousState !== newState) {
-      this._connectionState = newState;
-      if (this._onConnectionStateChange !== null) {
-        this._onConnectionStateChange({
-          previousState,
-          currentState: newState,
-        });
-      }
-    }
   }
 
   /**
@@ -553,161 +575,11 @@ class CD48 {
   }
 
   /**
-   * Send a command with retry logic.
-   * @param command - Command to send
-   * @returns Response from device
-   */
-  private async _sendCommandWithRetry(command: string): Promise<string> {
-    let lastError: Error | undefined;
-
-    for (let attempt = 0; attempt <= this.commandRetries; attempt++) {
-      try {
-        return await this._sendCommandOnce(command);
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        // Don't retry for non-retryable errors
-        if (
-          error instanceof NotConnectedError ||
-          error instanceof InvalidResponseError
-        ) {
-          throw error;
-        }
-
-        // If we have retries left, wait and try again
-        if (attempt < this.commandRetries) {
-          await this.sleep(this.retryDelay * (attempt + 1));
-        }
-      }
-    }
-
-    // All retries exhausted, throw the last error
-    throw lastError ?? new CommunicationError('Unknown error after retries');
-  }
-
-  /**
-   * Send a command once without retry logic.
-   * @param command - Command to send
-   * @returns Response from device
-   */
-  private async _sendCommandOnce(command: string): Promise<string> {
-    if (!this.isConnected()) {
-      // Attempt auto-reconnect if enabled
-      if (this.autoReconnect) {
-        const reconnected = await this._attemptAutoReconnect();
-        if (!reconnected) {
-          throw new NotConnectedError('sendCommand');
-        }
-      } else {
-        throw new NotConnectedError('sendCommand');
-      }
-    }
-
-    // Apply rate limiting
-    await this._applyRateLimit();
-
-    try {
-      if (this.writer === null || this.reader === null) {
-        throw new NotConnectedError('sendCommand');
-      }
-
-      // Clear any pending data
-      await this.writer.write(command + '\r');
-      await this.sleep(this.commandDelay);
-
-      // Read response with timeout
-      let response = '';
-      const startTime = Date.now();
-      const timeout = COMMAND_TIMEOUT_MS;
-
-      while (Date.now() - startTime < timeout) {
-        const readPromise: Promise<ReadResult> = this.reader
-          .read()
-          .then((result) => ({ value: result.value ?? '', done: result.done }));
-        const timeoutPromise: Promise<ReadResult> = this.sleep(
-          READ_TIMEOUT_INTERVAL_MS
-        ).then(() => ({
-          value: '',
-          done: false,
-          timeout: true,
-        }));
-
-        const result = await Promise.race([readPromise, timeoutPromise]);
-
-        if (result.done) break;
-        if (result.value !== '') response += result.value;
-
-        // Check if we have a complete response
-        if (response.includes('\r') || response.includes('\n')) {
-          break;
-        }
-      }
-
-      // Check if we timed out
-      if (Date.now() - startTime >= timeout && response === '') {
-        throw new CommandTimeoutError(command, timeout);
-      }
-
-      return response.trim();
-    } catch (error) {
-      if (
-        error instanceof CommandTimeoutError ||
-        error instanceof NotConnectedError
-      ) {
-        throw error;
-      }
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      const errorCause = error instanceof Error ? error : undefined;
-      throw new CommunicationError(errorMessage, errorCause);
-    }
-  }
-
-  /**
    * Get firmware version.
    * @returns Firmware version string
    */
   public async getVersion(): Promise<string> {
     return await this.sendCommand('v');
-  }
-
-  /**
-   * Parse firmware version string into components.
-   * Handles formats like "CD48 v1.2.3", "1.2.3", "v1.2", etc.
-   * @param versionString - Raw version string from device
-   * @returns Parsed version components
-   */
-  public static parseFirmwareVersion(versionString: string): {
-    major: number;
-    minor: number;
-    patch: number;
-  } {
-    // Extract version number pattern (e.g., "1.2.3" or "1.2")
-    const match = versionString.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
-    if (match !== null) {
-      return {
-        major: parseInt(match[1] ?? '0', DECIMAL_RADIX),
-        minor: parseInt(match[2] ?? '0', DECIMAL_RADIX),
-        patch: parseInt(match[3] ?? '0', DECIMAL_RADIX),
-      };
-    }
-    // If no pattern found, return zeros
-    return { major: 0, minor: 0, patch: 0 };
-  }
-
-  /**
-   * Compare two firmware versions.
-   * @param a - First version
-   * @param b - Second version
-   * @returns Negative if a < b, positive if a > b, zero if equal
-   */
-  public static compareFirmwareVersions(
-    a: { major: number; minor: number; patch: number },
-    b: { major: number; minor: number; patch: number }
-  ): number {
-    if (a.major !== b.major) return a.major - b.major;
-    if (a.minor !== b.minor) return a.minor - b.minor;
-    return a.patch - b.patch;
   }
 
   /**
@@ -1027,6 +899,134 @@ class CD48 {
         trueCoincidenceRate: trueCoincidenceRateUncertainty,
       },
     };
+  }
+
+  /**
+   * Update connection state and notify listeners.
+   * @param newState - New connection state
+   */
+  private _setConnectionState(newState: ConnectionState): void {
+    const previousState = this._connectionState;
+    if (previousState !== newState) {
+      this._connectionState = newState;
+      if (this._onConnectionStateChange !== null) {
+        this._onConnectionStateChange({
+          previousState,
+          currentState: newState,
+        });
+      }
+    }
+  }
+
+  /**
+   * Send a command with retry logic.
+   * @param command - Command to send
+   * @returns Response from device
+   */
+  private async _sendCommandWithRetry(command: string): Promise<string> {
+    let lastError: Error | undefined;
+
+    for (let attempt = 0; attempt <= this.commandRetries; attempt++) {
+      try {
+        return await this._sendCommandOnce(command);
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // Don't retry for non-retryable errors
+        if (
+          error instanceof NotConnectedError ||
+          error instanceof InvalidResponseError
+        ) {
+          throw error;
+        }
+
+        // If we have retries left, wait and try again
+        if (attempt < this.commandRetries) {
+          await this.sleep(this.retryDelay * (attempt + 1));
+        }
+      }
+    }
+
+    // All retries exhausted, throw the last error
+    throw lastError ?? new CommunicationError('Unknown error after retries');
+  }
+
+  /**
+   * Send a command once without retry logic.
+   * @param command - Command to send
+   * @returns Response from device
+   */
+  private async _sendCommandOnce(command: string): Promise<string> {
+    if (!this.isConnected()) {
+      // Attempt auto-reconnect if enabled
+      if (this.autoReconnect) {
+        const reconnected = await this._attemptAutoReconnect();
+        if (!reconnected) {
+          throw new NotConnectedError('sendCommand');
+        }
+      } else {
+        throw new NotConnectedError('sendCommand');
+      }
+    }
+
+    // Apply rate limiting
+    await this._applyRateLimit();
+
+    try {
+      if (this.writer === null || this.reader === null) {
+        throw new NotConnectedError('sendCommand');
+      }
+
+      // Clear any pending data
+      await this.writer.write(command + '\r');
+      await this.sleep(this.commandDelay);
+
+      // Read response with timeout
+      let response = '';
+      const startTime = Date.now();
+      const timeout = COMMAND_TIMEOUT_MS;
+
+      while (Date.now() - startTime < timeout) {
+        const readPromise: Promise<ReadResult> = this.reader
+          .read()
+          .then((result) => ({ value: result.value ?? '', done: result.done }));
+        const timeoutPromise: Promise<ReadResult> = this.sleep(
+          READ_TIMEOUT_INTERVAL_MS
+        ).then(() => ({
+          value: '',
+          done: false,
+          timeout: true,
+        }));
+
+        const result = await Promise.race([readPromise, timeoutPromise]);
+
+        if (result.done) break;
+        if (result.value !== '') response += result.value;
+
+        // Check if we have a complete response
+        if (response.includes('\r') || response.includes('\n')) {
+          break;
+        }
+      }
+
+      // Check if we timed out
+      if (Date.now() - startTime >= timeout && response === '') {
+        throw new CommandTimeoutError(command, timeout);
+      }
+
+      return response.trim();
+    } catch (error) {
+      if (
+        error instanceof CommandTimeoutError ||
+        error instanceof NotConnectedError
+      ) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorCause = error instanceof Error ? error : undefined;
+      throw new CommunicationError(errorMessage, errorCause);
+    }
   }
 
   /**
