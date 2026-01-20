@@ -156,7 +156,6 @@ test.describe('Link and Button Fuzzing - Comprehensive Test Suite', () => {
     for (const pagePath of HTML_PAGES) {
       test(`${pagePath} - all links are valid and accessible`, async ({
         page,
-        baseURL,
       }) => {
         await page.goto(pagePath);
         await page.waitForLoadState('networkidle');
@@ -390,7 +389,7 @@ test.describe('Link and Button Fuzzing - Comprehensive Test Suite', () => {
               `External link "${link.text}" has proper security: target="${target}" rel="${rel}"`
             );
           }
-        } catch (error) {
+        } catch (_error) {
           // Skip if selector is ambiguous or element not found
           console.log(`Skipping link "${link.text}" due to selector issue`);
         }
