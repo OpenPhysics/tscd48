@@ -21,8 +21,8 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
-          deny-licenses: GPL-2.0, GPL-3.0
           comment-summary-in-pr: always
+          # License checking is handled by the separate check-licenses job below
 
   check-licenses:
     name: Check License Compliance
@@ -49,9 +49,27 @@ jobs:
           # Install license checker
           npm install -g license-checker
 
-          # Check licenses
+          # Check for denied licenses (GPL-2.0, GPL-3.0)
+          DENIED_LICENSES="GPL-2.0;GPL-3.0"
+
+          if license-checker --failOn "$DENIED_LICENSES" > /dev/null 2>&1; then
+            echo "✅ No denied licenses found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Denied licenses detected!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The following denied licenses were found:" >> $GITHUB_STEP_SUMMARY
+            license-checker --onlyAllow "$DENIED_LICENSES" 2>&1 | tee denied.txt || true
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat denied.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          # Check all licenses
           license-checker --summary > licenses.txt
 
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### All Licenses Summary" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           cat licenses.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
