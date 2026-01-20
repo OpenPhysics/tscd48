@@ -9,7 +9,10 @@ tests/
 ├── e2e/                      # End-to-end tests
 │   ├── examples.spec.js      # Tests for all example pages
 │   ├── visual-regression.spec.js  # Visual regression tests
-│   └── error-scenarios.spec.js    # Error handling tests
+│   ├── error-scenarios.spec.js    # Error handling tests
+│   ├── link-button-fuzzing.spec.ts  # Link/button fuzzing tests
+│   ├── FUZZING_README.md     # Fuzzing tests user guide
+│   └── FUZZING_RESULTS.md    # Latest fuzzing test results
 ├── integration/              # Integration tests
 │   └── cd48-integration.test.js   # Mock hardware tests
 ├── mock-cd48.js             # Mock CD48 device for testing
@@ -50,6 +53,9 @@ npm run test:e2e:headed       # Run with browser visible
 npm run test:e2e:ui           # Run with Playwright UI
 npm run test:e2e:debug        # Debug mode
 npm run test:e2e:report       # View HTML report
+
+# Fuzzing tests (link and button validation)
+npm run test:e2e -- tests/e2e/link-button-fuzzing.spec.ts
 ```
 
 ### Visual Regression Tests
@@ -113,6 +119,21 @@ Tests for all 11 example pages:
 - ✅ Tab switching
 - ✅ Responsive design
 - ✅ Accessibility
+
+### Link and Button Fuzzing Tests
+
+Automated testing of all interactive elements across all HTML pages:
+
+- ✅ Link validation (internal and external)
+- ✅ Button functionality verification
+- ✅ Navigation consistency
+- ✅ Security attributes on external links
+- ✅ Keyboard accessibility
+- ✅ Interactive UI elements (search, filters, etc.)
+- ✅ Comprehensive inventory reporting
+
+See [tests/e2e/FUZZING_README.md](e2e/FUZZING_README.md) for detailed usage guide.
+See [tests/e2e/FUZZING_RESULTS.md](e2e/FUZZING_RESULTS.md) for latest test results.
 
 ### Error Scenario Tests
 
