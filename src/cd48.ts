@@ -74,7 +74,7 @@ export interface CD48Options {
   baudRate?: number;
   /** Delay after commands in ms (default: 50) */
   commandDelay?: number;
-  /** Enable auto-reconnection (default: true) */
+  /** Enable auto-reconnection (default: false) */
   autoReconnect?: boolean;
   /** Max reconnection attempts (default: 5) */
   reconnectAttempts?: number;
@@ -297,7 +297,7 @@ class CD48 {
   constructor(options: CD48Options = {}) {
     this.baudRate = options.baudRate ?? BAUD_RATE;
     this.commandDelay = options.commandDelay ?? COMMAND_DELAY_MS;
-    this.autoReconnect = options.autoReconnect ?? true;
+    this.autoReconnect = options.autoReconnect ?? false;
     this.reconnectAttempts = options.reconnectAttempts ?? RECONNECT_ATTEMPTS;
     this.reconnectDelay = options.reconnectDelay ?? RECONNECT_DELAY_MS;
     this.rateLimitMs = options.rateLimitMs ?? 0;
