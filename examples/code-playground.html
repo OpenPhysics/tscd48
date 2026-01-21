@@ -366,8 +366,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/javascript-hint.min.js"></script>
 
     <script type="module">
-      import CD48 from '../src/cd48.js';
-      import { setupDevMode } from '../src/dev-utils.js';
+      import CD48, { setupDevMode } from '../dist/cd48.esm.js';
 
       // Setup dev mode
       const { logger } = setupDevMode({
@@ -415,7 +414,7 @@ for (let i = 0; i < 10; i++) {
 
 console.log('Monitoring complete!');`,
         analysis: `// Statistical analysis example
-import { Statistics } from '../src/analysis.js';
+import { Statistics } from '../dist/cd48.esm.js';
 
 console.log('Collecting data for 5 seconds...');
 const samples = [];
@@ -430,7 +429,7 @@ const stats = Statistics.summary(samples);
 console.log('Statistics:', stats);
 console.log(\`Mean: \${stats.mean.toFixed(2)}, StdDev: \${stats.std.toFixed(2)}\`);`,
         calibration: `// Calibration example
-import { CalibrationProfile } from '../src/calibration.js';
+import { CalibrationProfile } from '../dist/cd48.esm.js';
 
 const profile = new CalibrationProfile({
   name: 'Test Profile',
