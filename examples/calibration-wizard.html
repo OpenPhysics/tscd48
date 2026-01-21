@@ -549,11 +549,10 @@
     </div>
 
     <script type="module">
-      import CD48 from '../src/cd48.js';
-      import {
+      import CD48, {
         CalibrationWizard,
         CalibrationStorage,
-      } from '../src/calibration.js';
+      } from '../dist/cd48.esm.js';
 
       const cd48 = new CD48();
       const wizard = new CalibrationWizard(cd48);

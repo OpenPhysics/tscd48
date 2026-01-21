@@ -370,8 +370,11 @@
     </div>
 
     <script type="module">
-      import CD48 from '../src/cd48.js';
-      import { Statistics, Histogram, TimeSeries } from '../src/analysis.js';
+      import CD48, {
+        Statistics,
+        Histogram,
+        TimeSeries,
+      } from '../dist/cd48.esm.js';
 
       const cd48 = new CD48();
       let collectedData = [];

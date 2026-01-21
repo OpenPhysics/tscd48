@@ -1224,20 +1224,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="dist/cd48.umd.js"></script>
     <script>
-      // UMD compatibility: expose CD48 class directly for browser usage
-      // The UMD build exports an object with named exports, but we want CD48 to be the class
-      if (typeof CD48 === 'object' && CD48.default) {
-        var _CD48Lib = CD48;
-        CD48 = CD48.default;
-        // Preserve other exports on the class for convenience
-        Object.keys(_CD48Lib).forEach(function (key) {
-          if (key !== 'default' && !(key in CD48)) {
-            CD48[key] = _CD48Lib[key];
-          }
-        });
-      }
-    </script>
-    <script>
       // Global state
       let cd48 = null;
       let autoRefreshInterval = null;
