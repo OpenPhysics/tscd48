@@ -10,6 +10,8 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
+
+    // Strict type checking - all enabled
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -19,6 +21,8 @@
     "noImplicitThis": true,
     "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
+
+    // Additional strict checks
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -29,12 +33,19 @@
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "noImplicitOverride": true,
+
+    // TypeScript 5.x strict options
+    "noUncheckedSideEffectImports": true,
+    "noEmitOnError": true,
+    "erasableSyntaxOnly": false,
+
+    // Module and interop
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "tests", "examples"]
