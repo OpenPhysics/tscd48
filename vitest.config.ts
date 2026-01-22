@@ -22,12 +22,12 @@ export default defineConfig({
         '*.config.js',
         'docs/',
       ],
-      // Enforce minimum coverage thresholds
+      // Enforce 100% coverage thresholds
       thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 75,
-        statements: 80,
+        lines: 100,
+        functions: 98,
+        branches: 90,
+        statements: 100,
       },
     },
   },

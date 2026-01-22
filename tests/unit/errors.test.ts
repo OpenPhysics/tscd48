@@ -11,6 +11,8 @@ import {
   InvalidChannelError,
   InvalidVoltageError,
   CommunicationError,
+  OperationAbortedError,
+  FirmwareIncompatibleError,
 } from '../../src/errors.js';
 
 describe('CD48 Error Classes', () => {
@@ -135,6 +137,50 @@ describe('CD48 Error Classes', () => {
       expect(error.message).toContain('read failed');
       expect(error.name).toBe('CommunicationError');
       expect(error.originalError).toBe(cause);
+      expect(error instanceof CD48Error).toBe(true);
+    });
+
+    it('should create error without cause', () => {
+      const error = new CommunicationError('read failed');
+      expect(error.message).toContain('Communication error');
+      expect(error.message).toContain('read failed');
+      expect(error.name).toBe('CommunicationError');
+      expect(error.originalError).toBeUndefined();
+      expect(error instanceof CD48Error).toBe(true);
+    });
+  });
+
+  describe('OperationAbortedError', () => {
+    it('should create error with operation name', () => {
+      const error = new OperationAbortedError('measureRate');
+      expect(error.message).toContain('measureRate');
+      expect(error.message).toContain('aborted');
+      expect(error.name).toBe('OperationAbortedError');
+      expect(error.operation).toBe('measureRate');
+      expect(error instanceof CD48Error).toBe(true);
+    });
+  });
+
+  describe('FirmwareIncompatibleError', () => {
+    it('should create error with version information', () => {
+      const error = new FirmwareIncompatibleError('0.9.0', '1.0.0');
+      expect(error.message).toContain('0.9.0');
+      expect(error.message).toContain('not supported');
+      expect(error.message).toContain('1.0.0');
+      expect(error.name).toBe('FirmwareIncompatibleError');
+      expect(error.currentVersion).toBe('0.9.0');
+      expect(error.minimumVersion).toBe('1.0.0');
+      expect(error instanceof CD48Error).toBe(true);
+    });
+  });
+
+  describe('ConnectionError without cause', () => {
+    it('should create error without cause', () => {
+      const error = new ConnectionError('port not found');
+      expect(error.message).toContain('Connection failed');
+      expect(error.message).toContain('port not found');
+      expect(error.name).toBe('ConnectionError');
+      expect(error.originalError).toBeUndefined();
       expect(error instanceof CD48Error).toBe(true);
     });
   });
