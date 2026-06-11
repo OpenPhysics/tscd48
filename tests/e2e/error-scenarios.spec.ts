@@ -246,7 +246,8 @@ test.describe('Error Scenarios - Browser Compatibility', () => {
     // Override Web Serial API support
     await page.addInitScript(() => {
       // biome-ignore lint/suspicious/noExplicitAny: browser context — no type for navigator.serial override
-      (navigator as any).serial = undefined;
+      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
+      delete (navigator as any).serial;
     });
 
     await page.goto('/examples/simple-monitor.html');

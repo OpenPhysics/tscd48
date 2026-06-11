@@ -88,7 +88,8 @@ describe('CD48', () => {
     });
 
     it('should return false when Web Serial API is not available', () => {
-      (global.navigator as { serial?: unknown }).serial = undefined;
+      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
+      delete (global.navigator as { serial?: unknown }).serial;
       expect(CD48.isSupported()).toBe(false);
     });
   });
@@ -102,14 +103,16 @@ describe('CD48', () => {
     });
 
     it('should return false when Web Locks API is not available', () => {
-      (global.navigator as Navigator & { locks?: unknown }).locks = undefined;
+      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
+      delete (global.navigator as Navigator & { locks?: unknown }).locks;
       expect(CD48.isWebLocksSupported()).toBe(false);
     });
   });
 
   describe('Connection', () => {
     it('should throw error if Web Serial API not supported', async () => {
-      (global.navigator as { serial?: unknown }).serial = undefined;
+      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
+      delete (global.navigator as { serial?: unknown }).serial;
       const cd48 = new CD48();
       await expect(cd48.connect()).rejects.toThrow(
         'Web Serial API not supported'
