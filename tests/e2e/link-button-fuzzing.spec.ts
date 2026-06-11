@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 
 /**
  * Comprehensive Link and Button Fuzzing Tests
@@ -90,7 +90,7 @@ async function extractButtons(page: Page): Promise<ButtonInfo[]> {
     const buttons: ButtonInfo[] = [];
     const buttonElements = Array.from(document.querySelectorAll('button'));
 
-    buttonElements.forEach((button) => {
+    for (const button of buttonElements) {
       const text = button.textContent?.trim() || '';
       const id = button.id || null;
       const className = button.className || '';
@@ -100,7 +100,7 @@ async function extractButtons(page: Page): Promise<ButtonInfo[]> {
         button.onclick !== null ||
         button.hasAttribute('onclick') ||
         // @ts-expect-error - accessing internal property
-        (button._events && button._events.click) ||
+        button._events?.click ||
         className.includes('clickable') ||
         className.includes('btn');
 
@@ -110,7 +110,7 @@ async function extractButtons(page: Page): Promise<ButtonInfo[]> {
         className,
         hasClickHandler,
       });
-    });
+    }
 
     return buttons;
   });
@@ -131,14 +131,12 @@ async function isLinkAccessible(
     }
 
     // For absolute URLs (external or starting with /), use as-is or construct from baseURL
-    let fullURL: string;
     if (url.startsWith('http://') || url.startsWith('https://')) {
       // External URL - just validate format (don't actually fetch)
       return true;
-    } else {
-      // Relative URL - resolve it relative to the current page
-      fullURL = new URL(url, currentPageURL).href;
     }
+    // Relative URL - resolve it relative to the current page
+    const fullURL = new URL(url, currentPageURL).href;
 
     // Try to navigate to the URL
     const response = await page.goto(fullURL, {
@@ -537,18 +535,18 @@ test.describe('Comprehensive Link Report', () => {
 
       if (pageReport.links.length > 0) {
         console.log('  Link Details:');
-        pageReport.links.forEach((link) => {
+        for (const link of pageReport.links) {
           console.log(`    - ${link.text || '(no text)'}: ${link.href}`);
-        });
+        }
       }
 
       if (pageReport.buttons.length > 0) {
         console.log('  Button Details:');
-        pageReport.buttons.forEach((btn) => {
+        for (const btn of pageReport.buttons) {
           console.log(
             `    - ${btn.text || '(no text)'} (${btn.id || 'no id'})`
           );
-        });
+        }
       }
     }
 

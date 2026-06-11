@@ -1,4 +1,4 @@
-import { vi, type Mock } from 'vitest';
+import { type Mock, vi } from 'vitest';
 
 /**
  * Mock Web Serial API for testing CD48 library
@@ -104,6 +104,7 @@ export function createMockSerialPort(
       }
 
       if (responseQueue.length > 0) {
+        // biome-ignore lint/style/noNonNullAssertion: length checked above
         const value = responseQueue.shift()!;
         if (responseDelay > 0) {
           await new Promise((resolve) => setTimeout(resolve, responseDelay));
@@ -307,12 +308,14 @@ export function setupWebSerialMock(
  * Call this in your test teardown (afterEach)
  */
 export function cleanupWebSerialMock(): void {
-  delete (global.navigator as Navigator & { serial?: MockNavigatorSerial })
-    .serial;
-  delete (global as { TextDecoderStream?: typeof MockTextDecoderStream })
-    .TextDecoderStream;
-  delete (global as { TextEncoderStream?: typeof MockTextEncoderStream })
-    .TextEncoderStream;
+  (global.navigator as Navigator & { serial?: MockNavigatorSerial }).serial =
+    undefined;
+  (
+    global as { TextDecoderStream?: typeof MockTextDecoderStream }
+  ).TextDecoderStream = undefined;
+  (
+    global as { TextEncoderStream?: typeof MockTextEncoderStream }
+  ).TextEncoderStream = undefined;
 }
 
 /**

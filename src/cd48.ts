@@ -17,53 +17,53 @@
  */
 
 import {
-  UnsupportedBrowserError,
-  NotConnectedError,
+  CommandTimeoutError,
+  CommunicationError,
   ConnectionError,
   DeviceSelectionCancelledError,
-  CommandTimeoutError,
-  InvalidResponseError,
-  CommunicationError,
-  OperationAbortedError,
   FirmwareIncompatibleError,
+  InvalidResponseError,
+  NotConnectedError,
+  OperationAbortedError,
+  UnsupportedBrowserError,
 } from './errors.js';
 
 import {
+  BYTE_MAX,
+  REPEAT_INTERVAL_MAX,
+  REPEAT_INTERVAL_MIN,
+  VOLTAGE_MAX,
   validateChannel,
   voltageToByte,
-  VOLTAGE_MAX,
-  BYTE_MAX,
-  REPEAT_INTERVAL_MIN,
-  REPEAT_INTERVAL_MAX,
 } from './validation.js';
 
 import {
-  BAUD_RATE,
-  COMMAND_DELAY_MS,
-  RECONNECT_ATTEMPTS,
-  RECONNECT_DELAY_MS,
-  USB_VENDOR_ID,
-  CONNECTION_INIT_DELAY_MS,
-  COMMAND_TIMEOUT_MS,
-  READ_TIMEOUT_INTERVAL_MS,
-  EXPECTED_CHANNEL_COUNT,
-  EXPECTED_COUNT_RESPONSE_LENGTH,
-  DECIMAL_RADIX,
-  COINCIDENCE_WINDOW_SECONDS,
   ACCIDENTAL_RATE_MULTIPLIER,
+  BAUD_RATE,
+  COINCIDENCE_WINDOW_SECONDS,
+  COMMAND_DELAY_MS,
+  COMMAND_TIMEOUT_MS,
+  CONNECTION_INIT_DELAY_MS,
+  DECIMAL_RADIX,
+  DEFAULT_COINCIDENCE_CHANNEL,
+  DEFAULT_COMMAND_RETRIES,
+  DEFAULT_MEASUREMENT_DURATION,
+  DEFAULT_RETRY_DELAY_MS,
   DEFAULT_SINGLES_A_CHANNEL,
   DEFAULT_SINGLES_B_CHANNEL,
-  DEFAULT_COINCIDENCE_CHANNEL,
-  DEFAULT_MEASUREMENT_DURATION,
+  EXPECTED_CHANNEL_COUNT,
+  EXPECTED_COUNT_RESPONSE_LENGTH,
   MILLISECONDS_PER_SECOND,
-  PERCENT_CONVERSION,
-  DEFAULT_COMMAND_RETRIES,
-  DEFAULT_RETRY_DELAY_MS,
-  WEB_LOCK_NAME,
   MIN_FIRMWARE_MAJOR,
   MIN_FIRMWARE_MINOR,
   MIN_FIRMWARE_PATCH,
   MIN_FIRMWARE_VERSION,
+  PERCENT_CONVERSION,
+  READ_TIMEOUT_INTERVAL_MS,
+  RECONNECT_ATTEMPTS,
+  RECONNECT_DELAY_MS,
+  USB_VENDOR_ID,
+  WEB_LOCK_NAME,
 } from './constants.js';
 
 /**
@@ -360,9 +360,9 @@ class CD48 {
     const match = versionString.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
     if (match !== null) {
       return {
-        major: parseInt(match[1] ?? '0', DECIMAL_RADIX),
-        minor: parseInt(match[2] ?? '0', DECIMAL_RADIX),
-        patch: parseInt(match[3] ?? '0', DECIMAL_RADIX),
+        major: Number.parseInt(match[1] ?? '0', DECIMAL_RADIX),
+        minor: Number.parseInt(match[2] ?? '0', DECIMAL_RADIX),
+        patch: Number.parseInt(match[3] ?? '0', DECIMAL_RADIX),
       };
     }
     // If no pattern found, return zeros
@@ -649,7 +649,10 @@ class CD48 {
     if (parts.length >= EXPECTED_COUNT_RESPONSE_LENGTH) {
       return {
         counts: parts.slice(0, EXPECTED_CHANNEL_COUNT).map(Number),
-        overflow: parseInt(parts[EXPECTED_CHANNEL_COUNT] ?? '0', DECIMAL_RADIX),
+        overflow: Number.parseInt(
+          parts[EXPECTED_CHANNEL_COUNT] ?? '0',
+          DECIMAL_RADIX
+        ),
       };
     }
 
@@ -757,7 +760,7 @@ class CD48 {
    */
   public async getOverflow(): Promise<number> {
     const response = await this.sendCommand('E');
-    return parseInt(response, DECIMAL_RADIX);
+    return Number.parseInt(response, DECIMAL_RADIX);
   }
 
   /**
@@ -870,12 +873,11 @@ class CD48 {
     // sigma_acc = 2 * tau * sqrt((R_B * sigma_A)^2 + (R_A * sigma_B)^2) / T
     const accidentalRateUncertainty =
       ((ACCIDENTAL_RATE_MULTIPLIER * coincidenceWindow) / duration) *
-      Math.sqrt(Math.pow(rateB * sigmaA, 2) + Math.pow(rateA * sigmaB, 2));
+      Math.sqrt((rateB * sigmaA) ** 2 + (rateA * sigmaB) ** 2);
 
     // True coincidence rate uncertainty (quadrature sum)
     const trueCoincidenceRateUncertainty = Math.sqrt(
-      Math.pow(coincidenceRateUncertainty, 2) +
-        Math.pow(accidentalRateUncertainty, 2)
+      coincidenceRateUncertainty ** 2 + accidentalRateUncertainty ** 2
     );
 
     return {
@@ -978,7 +980,7 @@ class CD48 {
       }
 
       // Clear any pending data
-      await this.writer.write(command + '\r');
+      await this.writer.write(`${command}\r`);
       await this.sleep(this.commandDelay);
 
       // Read response with timeout

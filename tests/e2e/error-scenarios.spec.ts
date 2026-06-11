@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 
 /**
  * Error Scenario Tests
@@ -245,8 +245,8 @@ test.describe('Error Scenarios - Browser Compatibility', () => {
   }) => {
     // Override Web Serial API support
     await page.addInitScript(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (navigator as any).serial;
+      // biome-ignore lint/suspicious/noExplicitAny: browser context — no type for navigator.serial override
+      (navigator as any).serial = undefined;
     });
 
     await page.goto('/examples/simple-monitor.html');

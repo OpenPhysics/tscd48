@@ -13,9 +13,7 @@
   },
   "typesVersions": {
     "*": {
-      "*": [
-        "dist/*"
-      ]
+      "*": ["dist/*"]
     }
   },
   "exports": {
@@ -25,13 +23,7 @@
       "require": "./dist/cd48.umd.js"
     }
   },
-  "files": [
-    "src",
-    "dist",
-    "README.md",
-    "LICENSE",
-    "TROUBLESHOOTING.md"
-  ],
+  "files": ["src", "dist", "README.md", "LICENSE", "TROUBLESHOOTING.md"],
   "scripts": {
     "start": "npx serve .",
     "dev": "vite",
@@ -57,13 +49,13 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report tests/e2e-report",
     "test:all": "npm run test && npm run test:integration && npm run test:e2e",
-    "lint": "eslint src tests --ext .ts,.js",
-    "lint:fix": "eslint --fix src tests --ext .ts,.js",
-    "format": "prettier --write \"**/*.{ts,js,json,md,html}\"",
-    "format:check": "prettier --check \"**/*.{ts,js,json,md,html}\"",
+    "lint": "biome lint src tests",
+    "lint:fix": "biome lint --write src tests",
+    "format": "biome format --write .",
+    "format:check": "biome check .",
     "docs": "typedoc",
     "docs:serve": "npm run docs && npx serve docs",
-    "prepublishOnly": "npm run build && npm run lint && npm run test && npm run format:check",
+    "prepublishOnly": "npm run build && npm run format:check && npm run test",
     "prepare": "husky",
     "pre-commit": "lint-staged",
     "commit": "cz"
@@ -103,9 +95,9 @@
     "access": "public"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
-    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.3",
     "@types/w3c-web-serial": "^1.0.8",
@@ -113,18 +105,14 @@
     "@vitest/ui": "^4.1.8",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^10.4.1",
-    "eslint-plugin-html": "^8.1.4",
     "happy-dom": "^20.10.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
     "playwright": "^1.60.0",
-    "prettier": "^3.8.4",
     "serve": "^14.2.6",
     "terser": "^5.48.0",
     "typedoc": "^0.28.19",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.0",
     "vite": "^8.0.16",
     "vitest": "^4.1.8"
   },
@@ -133,13 +121,7 @@
     "lodash": "^4.18.0"
   },
   "lint-staged": {
-    "*.{ts,js}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,html}": [
-      "prettier --write"
-    ]
+    "*.{ts,js,json,md}": ["biome check --write --no-errors-on-unmatched"]
   },
   "config": {
     "commitizen": {

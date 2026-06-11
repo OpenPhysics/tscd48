@@ -1,40 +1,40 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  CHANNEL_MIN,
-  CHANNEL_MAX,
-  VOLTAGE_MIN,
-  VOLTAGE_MAX,
-  BYTE_MIN,
+  InvalidChannelError,
+  InvalidVoltageError,
+  ValidationError,
+} from '../../src/errors.js';
+import {
   BYTE_MAX,
-  REPEAT_INTERVAL_MIN,
+  BYTE_MIN,
+  CHANNEL_MAX,
+  CHANNEL_MIN,
   REPEAT_INTERVAL_MAX,
+  REPEAT_INTERVAL_MIN,
+  VOLTAGE_MAX,
+  VOLTAGE_MIN,
+  byteToVoltage,
+  clamp,
+  clampRepeatInterval,
+  clampVoltage,
   // Branded type constructors
   createChannel,
-  createVoltage,
   createClampedVoltage,
+  createVoltage,
   // Type guards
   isValidChannel,
   isValidVoltage,
+  validateBoolean,
+  validateByte,
   // Validation functions
   validateChannel,
-  validateVoltage,
-  validateByte,
-  validateRepeatInterval,
   validateDuration,
   validateImpedanceMode,
-  validateBoolean,
-  clamp,
-  clampVoltage,
-  clampRepeatInterval,
+  validateRepeatInterval,
+  validateVoltage,
   voltageToByte,
-  byteToVoltage,
 } from '../../src/validation.js';
 import type { Channel, Voltage } from '../../src/validation.js';
-import {
-  ValidationError,
-  InvalidChannelError,
-  InvalidVoltageError,
-} from '../../src/errors.js';
 
 describe('Validation Constants', () => {
   it('should have correct channel range', () => {
@@ -81,7 +81,7 @@ describe('validateChannel', () => {
     expect(() => validateChannel(undefined as unknown as number)).toThrow(
       ValidationError
     );
-    expect(() => validateChannel(NaN)).toThrow(ValidationError);
+    expect(() => validateChannel(Number.NaN)).toThrow(ValidationError);
   });
 });
 
@@ -108,7 +108,7 @@ describe('validateVoltage', () => {
     expect(() => validateVoltage(undefined as unknown as number)).toThrow(
       ValidationError
     );
-    expect(() => validateVoltage(NaN)).toThrow(ValidationError);
+    expect(() => validateVoltage(Number.NaN)).toThrow(ValidationError);
   });
 });
 
@@ -135,7 +135,7 @@ describe('validateByte', () => {
     expect(() => validateByte(undefined as unknown as number)).toThrow(
       ValidationError
     );
-    expect(() => validateByte(NaN)).toThrow(ValidationError);
+    expect(() => validateByte(Number.NaN)).toThrow(ValidationError);
   });
 });
 
@@ -162,7 +162,7 @@ describe('validateRepeatInterval', () => {
     expect(() =>
       validateRepeatInterval(undefined as unknown as number)
     ).toThrow(ValidationError);
-    expect(() => validateRepeatInterval(NaN)).toThrow(ValidationError);
+    expect(() => validateRepeatInterval(Number.NaN)).toThrow(ValidationError);
   });
 });
 
@@ -189,7 +189,7 @@ describe('validateDuration', () => {
     expect(() => validateDuration(undefined as unknown as number)).toThrow(
       ValidationError
     );
-    expect(() => validateDuration(NaN)).toThrow(ValidationError);
+    expect(() => validateDuration(Number.NaN)).toThrow(ValidationError);
   });
 });
 
@@ -326,7 +326,7 @@ describe('isValidChannel', () => {
   });
 
   it('should return false for NaN', () => {
-    expect(isValidChannel(NaN)).toBe(false);
+    expect(isValidChannel(Number.NaN)).toBe(false);
   });
 
   it('should narrow type correctly', () => {
@@ -353,7 +353,7 @@ describe('isValidVoltage', () => {
   });
 
   it('should return false for NaN', () => {
-    expect(isValidVoltage(NaN)).toBe(false);
+    expect(isValidVoltage(Number.NaN)).toBe(false);
   });
 
   it('should narrow type correctly', () => {
@@ -389,7 +389,7 @@ describe('createChannel', () => {
   });
 
   it('should throw ValidationError for NaN', () => {
-    expect(() => createChannel(NaN)).toThrow(ValidationError);
+    expect(() => createChannel(Number.NaN)).toThrow(ValidationError);
   });
 
   it('should throw ValidationError for non-number values', () => {
@@ -430,7 +430,7 @@ describe('createVoltage', () => {
   });
 
   it('should throw ValidationError for NaN', () => {
-    expect(() => createVoltage(NaN)).toThrow(ValidationError);
+    expect(() => createVoltage(Number.NaN)).toThrow(ValidationError);
   });
 
   it('should throw ValidationError for non-number values', () => {

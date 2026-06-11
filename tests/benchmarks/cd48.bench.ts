@@ -48,15 +48,15 @@ describe('CD48 Performance Benchmarks', () => {
   describe('Count Parsing', () => {
     bench('parse count response (8 channels)', () => {
       const response = '12345 23456 34567 45678 56789 67890 78901 8912';
-      use(response.split(' ').map((c) => parseInt(c, 10)));
+      use(response.split(' ').map((c) => Number.parseInt(c, 10)));
     });
 
     bench('parse and validate count data', () => {
       const response = '12345 23456 34567 45678 56789 67890 78901 8912';
       use(
         response.split(' ').map((c) => {
-          const num = parseInt(c, 10);
-          return isNaN(num) ? 0 : num;
+          const num = Number.parseInt(c, 10);
+          return Number.isNaN(num) ? 0 : num;
         })
       );
     });
@@ -165,13 +165,15 @@ describe('CD48 Performance Benchmarks', () => {
   describe('Array Operations', () => {
     bench('map array to integers', () => {
       const arr = ['123', '456', '789', '12', '345', '678', '901', '234'];
-      use(arr.map((n) => parseInt(n, 10)));
+      use(arr.map((n) => Number.parseInt(n, 10)));
     });
 
     bench('filter and map array', () => {
       const arr = ['123', '456', '789', 'NaN', '345', '678', '901', '234'];
       use(
-        arr.filter((n) => !isNaN(parseInt(n, 10))).map((n) => parseInt(n, 10))
+        arr
+          .filter((n) => !Number.isNaN(Number.parseInt(n, 10)))
+          .map((n) => Number.parseInt(n, 10))
       );
     });
 

@@ -1,18 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   CD48Error,
-  UnsupportedBrowserError,
-  NotConnectedError,
+  CommandTimeoutError,
+  CommunicationError,
   ConnectionError,
   DeviceSelectionCancelledError,
-  CommandTimeoutError,
-  InvalidResponseError,
-  ValidationError,
-  InvalidChannelError,
-  InvalidVoltageError,
-  CommunicationError,
-  OperationAbortedError,
   FirmwareIncompatibleError,
+  InvalidChannelError,
+  InvalidResponseError,
+  InvalidVoltageError,
+  NotConnectedError,
+  OperationAbortedError,
+  UnsupportedBrowserError,
+  ValidationError,
 } from '../../src/errors.js';
 
 describe('CD48 Error Classes', () => {

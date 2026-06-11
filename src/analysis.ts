@@ -5,11 +5,11 @@
 
 import {
   DEFAULT_HISTOGRAM_BINS,
-  OUTLIER_Z_SCORE_THRESHOLD,
   EXPONENTIAL_MA_DEFAULT_ALPHA,
+  FREEDMAN_DIACONIS_DIVISOR,
+  OUTLIER_Z_SCORE_THRESHOLD,
   QUARTILE_Q1,
   QUARTILE_Q3,
-  FREEDMAN_DIACONIS_DIVISOR,
 } from './constants.js';
 
 /**
@@ -18,8 +18,11 @@ import {
  * @returns Minimum value or Infinity if empty
  */
 function safeMin(data: number[]): number {
-  if (data.length === 0) return Infinity;
-  return data.reduce((min, val) => Math.min(min, val), Infinity);
+  if (data.length === 0) return Number.POSITIVE_INFINITY;
+  return data.reduce(
+    (min, val) => Math.min(min, val),
+    Number.POSITIVE_INFINITY
+  );
 }
 
 /**
@@ -28,8 +31,11 @@ function safeMin(data: number[]): number {
  * @returns Maximum value or -Infinity if empty
  */
 function safeMax(data: number[]): number {
-  if (data.length === 0) return -Infinity;
-  return data.reduce((max, val) => Math.max(max, val), -Infinity);
+  if (data.length === 0) return Number.NEGATIVE_INFINITY;
+  return data.reduce(
+    (max, val) => Math.max(max, val),
+    Number.NEGATIVE_INFINITY
+  );
 }
 
 /**
@@ -118,7 +124,7 @@ export const Statistics = {
     if (data.length === 0) return 0;
     if (data.length === 1) return 0;
     const avg = this.mean(data);
-    const squareDiffs = data.map((value) => Math.pow(value - avg, 2));
+    const squareDiffs = data.map((value) => (value - avg) ** 2);
     const divisor = sample ? data.length - 1 : data.length;
     const avgSquareDiff =
       squareDiffs.reduce((sum, val) => sum + val, 0) / divisor;
@@ -176,7 +182,7 @@ export const Statistics = {
     const ssTotal = sumYY - n * yMean * yMean;
     const ssResidual = y.reduce((sum, yi, i) => {
       const predicted = slope * (x[i] ?? 0) + intercept;
-      return sum + Math.pow(yi - predicted, 2);
+      return sum + (yi - predicted) ** 2;
     }, 0);
     const r2 = ssTotal === 0 ? 0 : 1 - ssResidual / ssTotal;
 
@@ -249,15 +255,15 @@ export const Histogram = {
     );
 
     // Count values in each bin
-    data.forEach((value) => {
-      if (value < min || value > max) return;
+    for (const value of data) {
+      if (value < min || value > max) continue;
       let binIndex = Math.floor((value - min) / binWidth);
       if (binIndex === numBins) binIndex = numBins - 1; // Handle max value
       const currentCount = counts[binIndex];
       if (currentCount !== undefined) {
         counts[binIndex] = currentCount + 1;
       }
-    });
+    }
 
     // Calculate bin centers
     const binCenters = edges.slice(0, -1).map((edge) => edge + binWidth / 2);
@@ -300,15 +306,14 @@ export const Histogram = {
     const q3 = sorted[q3Index] ?? 0;
     const iqr = q3 - q1;
 
-    const binWidth =
-      (2 * iqr) / Math.pow(data.length, FREEDMAN_DIACONIS_DIVISOR);
+    const binWidth = (2 * iqr) / data.length ** FREEDMAN_DIACONIS_DIVISOR;
     const min = safeMin(data);
     const max = safeMax(data);
     const calculatedBins = Math.ceil((max - min) / binWidth);
     const bins =
       binWidth === 0
         ? 1
-        : calculatedBins !== 0 && !isNaN(calculatedBins)
+        : calculatedBins !== 0 && !Number.isNaN(calculatedBins)
           ? calculatedBins
           : 1;
 
@@ -445,7 +450,7 @@ export const TimeSeries = {
     }
 
     for (const value of data) {
-      denominator += Math.pow(value - mean, 2);
+      denominator += (value - mean) ** 2;
     }
 
     return denominator === 0 ? 0 : numerator / denominator;

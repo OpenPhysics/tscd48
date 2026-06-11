@@ -3,26 +3,15 @@
 echo "🚀 Running pre-push checks..."
 echo ""
 
-# Run format check
-echo "📝 Checking code formatting..."
+# Run format and lint check
+echo "🔍 Running Biome check..."
 if ! npm run format:check; then
   echo ""
-  echo "❌ Format check failed!"
-  echo "   Run 'npm run format' to fix formatting issues."
+  echo "❌ Biome check failed!"
+  echo "   Run 'npm run lint:fix' or 'biome check --write .' to fix issues."
   exit 1
 fi
-echo "✅ Format check passed"
-echo ""
-
-# Run linting
-echo "🔍 Running ESLint..."
-if ! npm run lint; then
-  echo ""
-  echo "❌ Lint check failed!"
-  echo "   Run 'npm run lint:fix' to fix linting issues."
-  exit 1
-fi
-echo "✅ Lint check passed"
+echo "✅ Biome check passed"
 echo ""
 
 # Run TypeScript type checking

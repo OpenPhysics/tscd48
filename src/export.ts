@@ -12,9 +12,9 @@
  */
 
 import type {
+  CoincidenceMeasurement,
   CountData,
   RateMeasurement,
-  CoincidenceMeasurement,
 } from './cd48.js';
 import { JSON_INDENT_SPACES } from './constants.js';
 

@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  setupWebSerialMock,
   cleanupWebSerialMock,
+  setupWebSerialMock,
 } from '../mocks/web-serial.js';
 
 // Import error classes
 import {
-  NotConnectedError,
+  ConnectionError,
+  FirmwareIncompatibleError,
   InvalidChannelError,
   InvalidResponseError,
+  NotConnectedError,
   OperationAbortedError,
-  FirmwareIncompatibleError,
-  ConnectionError,
 } from '../../src/errors.js';
 
 // Import CD48
@@ -88,7 +88,7 @@ describe('CD48', () => {
     });
 
     it('should return false when Web Serial API is not available', () => {
-      delete (global.navigator as { serial?: unknown }).serial;
+      (global.navigator as { serial?: unknown }).serial = undefined;
       expect(CD48.isSupported()).toBe(false);
     });
   });
@@ -102,14 +102,14 @@ describe('CD48', () => {
     });
 
     it('should return false when Web Locks API is not available', () => {
-      delete (global.navigator as Navigator & { locks?: unknown }).locks;
+      (global.navigator as Navigator & { locks?: unknown }).locks = undefined;
       expect(CD48.isWebLocksSupported()).toBe(false);
     });
   });
 
   describe('Connection', () => {
     it('should throw error if Web Serial API not supported', async () => {
-      delete (global.navigator as { serial?: unknown }).serial;
+      (global.navigator as { serial?: unknown }).serial = undefined;
       const cd48 = new CD48();
       await expect(cd48.connect()).rejects.toThrow(
         'Web Serial API not supported'
@@ -465,7 +465,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -560,7 +560,7 @@ describe('CD48', () => {
 
       const parsed = {
         counts: parts.slice(0, 8).map(Number),
-        overflow: parseInt(parts[8] ?? '0', 10),
+        overflow: Number.parseInt(parts[8] ?? '0', 10),
       };
 
       expect(parsed.counts).toEqual([100, 200, 300, 400, 500, 600, 700, 800]);
@@ -641,7 +641,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -688,7 +688,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -726,7 +726,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -756,7 +756,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -786,7 +786,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -911,7 +911,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -931,7 +931,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -956,7 +956,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -991,7 +991,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -1105,7 +1105,7 @@ describe('CD48', () => {
 
   describe('Web Locks Support', () => {
     it('should use Web Locks when enabled and supported', async () => {
-      const mockLockRequest = vi.fn((name, callback) => callback());
+      const mockLockRequest = vi.fn((_name, callback) => callback());
       (
         global.navigator as Navigator & {
           locks?: { request: typeof mockLockRequest };
@@ -1256,7 +1256,7 @@ describe('CD48', () => {
       const parts = response.split(/\s+/).filter((p) => p.length > 0);
       const parsed = {
         counts: parts.slice(0, 8).map(Number),
-        overflow: parseInt(parts[8] ?? '0', 10),
+        overflow: Number.parseInt(parts[8] ?? '0', 10),
       };
       expect(parsed.overflow).toBe(1);
     });
@@ -1267,7 +1267,7 @@ describe('CD48', () => {
       const parts = response.split(/\s+/).filter((p) => p.length > 0);
       const parsed = {
         counts: parts.slice(0, 8).map(Number),
-        overflow: parseInt(parts[8] ?? '0', 10),
+        overflow: Number.parseInt(parts[8] ?? '0', 10),
       };
       expect(parsed.counts[0]).toBe(4294967295);
     });
@@ -1282,7 +1282,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -1322,7 +1322,7 @@ describe('CD48', () => {
     });
 
     afterEach(async () => {
-      if (cd48 && cd48.isConnected()) {
+      if (cd48?.isConnected()) {
         await cd48.disconnect();
       }
     });
@@ -1709,9 +1709,9 @@ describe('CD48', () => {
       await cd48.connect();
 
       // Make reader never return any data and never complete
-      let readCalls = 0;
+      let _readCalls = 0;
       mocks.mockReader.read.mockImplementation(async () => {
-        readCalls++;
+        _readCalls++;
         // Return empty strings indefinitely, simulating no response
         await new Promise((resolve) => setTimeout(resolve, 200));
         return { value: '', done: false };

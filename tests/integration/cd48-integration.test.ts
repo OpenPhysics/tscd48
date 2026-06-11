@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MockCD48 } from '../mock-cd48.js';
 
 describe('CD48 Integration Tests - Mock Hardware', () => {

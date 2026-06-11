@@ -5,19 +5,19 @@
 
 import type CD48 from './cd48.js';
 
-import { CHANNEL_MIN, CHANNEL_MAX } from './validation.js';
+import { CHANNEL_MAX, CHANNEL_MIN } from './validation.js';
 
 import {
+  DEFAULT_BACKGROUND_DURATION,
+  DEFAULT_CALIBRATION_DURATION,
+  DEFAULT_SETTLING_TIME_MS,
+  EXPECTED_CHANNEL_COUNT,
+  GAIN_MAX,
+  GAIN_MIN,
   JSON_INDENT_SPACES,
   MIN_CALIBRATION_POINTS,
   PLATEAU_REGION_THRESHOLD_LOWER,
   PLATEAU_REGION_THRESHOLD_UPPER,
-  GAIN_MIN,
-  GAIN_MAX,
-  EXPECTED_CHANNEL_COUNT,
-  DEFAULT_BACKGROUND_DURATION,
-  DEFAULT_CALIBRATION_DURATION,
-  DEFAULT_SETTLING_TIME_MS,
 } from './constants.js';
 
 /** Current calibration profile schema version */
@@ -61,7 +61,7 @@ function isChannelCalibrationMap(
 ): value is ChannelCalibrationMap {
   if (typeof value !== 'object' || value === null) return false;
   return Object.entries(value).every(
-    ([key, val]) => !isNaN(Number(key)) && typeof val === 'number'
+    ([key, val]) => !Number.isNaN(Number(key)) && typeof val === 'number'
   );
 }
 
@@ -76,18 +76,18 @@ function isCalibrationProfileJSON(
   const obj = value as Record<string, unknown>;
   // Version is optional for backwards compatibility with unversioned profiles
   const hasValidVersion =
-    obj['version'] === undefined || typeof obj['version'] === 'number';
+    obj.version === undefined || typeof obj.version === 'number';
   return (
     hasValidVersion &&
-    typeof obj['name'] === 'string' &&
-    typeof obj['description'] === 'string' &&
-    typeof obj['date'] === 'string' &&
-    isChannelCalibrationMap(obj['voltages']) &&
-    isChannelCalibrationMap(obj['thresholds']) &&
-    isChannelCalibrationMap(obj['gains']) &&
-    isChannelCalibrationMap(obj['offsets']) &&
-    typeof obj['metadata'] === 'object' &&
-    obj['metadata'] !== null
+    typeof obj.name === 'string' &&
+    typeof obj.description === 'string' &&
+    typeof obj.date === 'string' &&
+    isChannelCalibrationMap(obj.voltages) &&
+    isChannelCalibrationMap(obj.thresholds) &&
+    isChannelCalibrationMap(obj.gains) &&
+    isChannelCalibrationMap(obj.offsets) &&
+    typeof obj.metadata === 'object' &&
+    obj.metadata !== null
   );
 }
 
@@ -462,6 +462,7 @@ export class CalibrationStorage {
 /**
  * Voltage calibration utilities
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: public API surface — callers use VoltageCalibration.twoPoint(...) etc.
 export class VoltageCalibration {
   /**
    * Perform two-point calibration
@@ -513,12 +514,12 @@ export class VoltageCalibration {
     let sumXY = 0;
     let sumXX = 0;
 
-    points.forEach((point) => {
+    for (const point of points) {
       sumX += point.raw;
       sumY += point.actual;
       sumXY += point.raw * point.actual;
       sumXX += point.raw * point.raw;
-    });
+    }
 
     const denominator = n * sumXX - sumX * sumX;
     if (denominator === 0) {
@@ -544,13 +545,13 @@ export class VoltageCalibration {
     offset: number
   ): CalibrationErrorStats {
     const errors = points.map((point) => {
-      const calibrated = this.apply(point.raw, gain, offset);
+      const calibrated = VoltageCalibration.apply(point.raw, gain, offset);
       return Math.abs(calibrated - point.actual);
     });
 
     const mean = errors.reduce((a, b) => a + b, 0) / errors.length;
     const variance =
-      errors.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / errors.length;
+      errors.reduce((a, b) => a + (b - mean) ** 2, 0) / errors.length;
     const std = Math.sqrt(variance);
     const max = Math.max(...errors);
 
@@ -677,7 +678,7 @@ export class CalibrationWizard {
     let optimalThreshold = testThresholds[0] ?? 0;
     let maxRate = 0;
 
-    results.forEach((result) => {
+    for (const result of results) {
       if (
         result.rate > maxRate * PLATEAU_REGION_THRESHOLD_LOWER &&
         result.rate < maxRate * PLATEAU_REGION_THRESHOLD_UPPER
@@ -686,7 +687,7 @@ export class CalibrationWizard {
         optimalThreshold = result.threshold;
       }
       maxRate = Math.max(maxRate, result.rate);
-    });
+    }
 
     this.profile.setThreshold(channel, optimalThreshold);
     return { optimal: optimalThreshold, results };

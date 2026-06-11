@@ -56,7 +56,7 @@ export type Voltage = number & { readonly [VoltageBrand]: typeof VoltageBrand };
 export function isValidChannel(value: number): value is Channel {
   return (
     typeof value === 'number' &&
-    !isNaN(value) &&
+    !Number.isNaN(value) &&
     Number.isInteger(value) &&
     value >= CHANNEL_MIN &&
     value <= CHANNEL_MAX
@@ -71,7 +71,7 @@ export function isValidChannel(value: number): value is Channel {
 export function isValidVoltage(value: number): value is Voltage {
   return (
     typeof value === 'number' &&
-    !isNaN(value) &&
+    !Number.isNaN(value) &&
     value >= VOLTAGE_MIN &&
     value <= VOLTAGE_MAX
   );
@@ -85,7 +85,7 @@ export function isValidVoltage(value: number): value is Voltage {
  */
 export function createChannel(value: number): Channel {
   if (!isValidChannel(value)) {
-    if (typeof value !== 'number' || isNaN(value)) {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
       throw new ValidationError(
         'channel',
         value,
@@ -105,7 +105,7 @@ export function createChannel(value: number): Channel {
  */
 export function createVoltage(value: number): Voltage {
   if (!isValidVoltage(value)) {
-    if (typeof value !== 'number' || isNaN(value)) {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
       throw new ValidationError(
         'voltage',
         value,
@@ -151,7 +151,7 @@ export type ImpedanceMode = 'highz' | '50ohm';
  * @throws InvalidChannelError If channel is out of range
  */
 export function validateChannel(channel: number): void {
-  if (typeof channel !== 'number' || isNaN(channel)) {
+  if (typeof channel !== 'number' || Number.isNaN(channel)) {
     throw new ValidationError(
       'channel',
       channel,
@@ -170,7 +170,7 @@ export function validateChannel(channel: number): void {
  * @throws InvalidVoltageError If voltage is out of range
  */
 export function validateVoltage(voltage: number): void {
-  if (typeof voltage !== 'number' || isNaN(voltage)) {
+  if (typeof voltage !== 'number' || Number.isNaN(voltage)) {
     throw new ValidationError(
       'voltage',
       voltage,
@@ -189,7 +189,7 @@ export function validateVoltage(voltage: number): void {
  * @throws ValidationError If byte is out of range
  */
 export function validateByte(byte: number): void {
-  if (typeof byte !== 'number' || isNaN(byte)) {
+  if (typeof byte !== 'number' || Number.isNaN(byte)) {
     throw new ValidationError(
       'byte',
       byte,
@@ -208,7 +208,7 @@ export function validateByte(byte: number): void {
  * @throws ValidationError If interval is out of range
  */
 export function validateRepeatInterval(interval: number): void {
-  if (typeof interval !== 'number' || isNaN(interval)) {
+  if (typeof interval !== 'number' || Number.isNaN(interval)) {
     throw new ValidationError(
       'repeat_interval',
       interval,
@@ -227,7 +227,7 @@ export function validateRepeatInterval(interval: number): void {
  * @throws ValidationError If duration is invalid
  */
 export function validateDuration(duration: number): void {
-  if (typeof duration !== 'number' || isNaN(duration)) {
+  if (typeof duration !== 'number' || Number.isNaN(duration)) {
     throw new ValidationError(
       'duration',
       duration,

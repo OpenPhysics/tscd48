@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 
 const SELECTORS = {
   SKIP_LINK: '.skip-link',
@@ -248,7 +248,9 @@ test.describe('Accessibility Features', () => {
     await page.waitForTimeout(TIMEOUTS.SHORT);
 
     const newValue = await triggerSlider.inputValue();
-    expect(parseInt(newValue, 10)).toBeGreaterThan(parseInt(initialValue, 10));
+    expect(Number.parseInt(newValue, 10)).toBeGreaterThan(
+      Number.parseInt(initialValue, 10)
+    );
   });
 
   test('should have proper tabpanel roles', async ({
