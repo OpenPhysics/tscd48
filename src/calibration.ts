@@ -76,18 +76,18 @@ function isCalibrationProfileJSON(
   const obj = value as Record<string, unknown>;
   // Version is optional for backwards compatibility with unversioned profiles
   const hasValidVersion =
-    obj.version === undefined || typeof obj.version === 'number';
+    obj['version'] === undefined || typeof obj['version'] === 'number';
   return (
     hasValidVersion &&
-    typeof obj.name === 'string' &&
-    typeof obj.description === 'string' &&
-    typeof obj.date === 'string' &&
-    isChannelCalibrationMap(obj.voltages) &&
-    isChannelCalibrationMap(obj.thresholds) &&
-    isChannelCalibrationMap(obj.gains) &&
-    isChannelCalibrationMap(obj.offsets) &&
-    typeof obj.metadata === 'object' &&
-    obj.metadata !== null
+    typeof obj['name'] === 'string' &&
+    typeof obj['description'] === 'string' &&
+    typeof obj['date'] === 'string' &&
+    isChannelCalibrationMap(obj['voltages']) &&
+    isChannelCalibrationMap(obj['thresholds']) &&
+    isChannelCalibrationMap(obj['gains']) &&
+    isChannelCalibrationMap(obj['offsets']) &&
+    typeof obj['metadata'] === 'object' &&
+    obj['metadata'] !== null
   );
 }
 

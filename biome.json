@@ -34,7 +34,8 @@
         "useForOf": "warn"
       },
       "complexity": {
-        "useOptionalChain": "warn"
+        "useOptionalChain": "warn",
+        "useLiteralKeys": "off"
       }
     }
   },
