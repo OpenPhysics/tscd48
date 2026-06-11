@@ -1,5 +1,5 @@
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
 
 // UMD footer that exposes the CD48 class directly as the global variable
 // instead of an object containing named exports. This allows browser usage like:
@@ -37,7 +37,7 @@ export default defineConfig({
         exports: 'named',
         // Add footer only for UMD builds to expose CD48 class directly
         footer: (chunk) => {
-          if (chunk.fileName && chunk.fileName.includes('umd')) {
+          if (chunk.fileName?.includes('umd')) {
             return umdFooter;
           }
           return '';
