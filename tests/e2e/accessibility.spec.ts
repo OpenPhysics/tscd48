@@ -1,4 +1,4 @@
-import { type Page, expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 const SELECTORS = {
   SKIP_LINK: '.skip-link',

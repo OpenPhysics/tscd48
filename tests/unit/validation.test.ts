@@ -4,16 +4,13 @@ import {
   InvalidVoltageError,
   ValidationError,
 } from '../../src/errors.js';
+import type { Channel, Voltage } from '../../src/validation.js';
 import {
   BYTE_MAX,
   BYTE_MIN,
+  byteToVoltage,
   CHANNEL_MAX,
   CHANNEL_MIN,
-  REPEAT_INTERVAL_MAX,
-  REPEAT_INTERVAL_MIN,
-  VOLTAGE_MAX,
-  VOLTAGE_MIN,
-  byteToVoltage,
   clamp,
   clampRepeatInterval,
   clampVoltage,
@@ -24,6 +21,10 @@ import {
   // Type guards
   isValidChannel,
   isValidVoltage,
+  REPEAT_INTERVAL_MAX,
+  REPEAT_INTERVAL_MIN,
+  VOLTAGE_MAX,
+  VOLTAGE_MIN,
   validateBoolean,
   validateByte,
   // Validation functions
@@ -34,7 +35,6 @@ import {
   validateVoltage,
   voltageToByte,
 } from '../../src/validation.js';
-import type { Channel, Voltage } from '../../src/validation.js';
 
 describe('Validation Constants', () => {
   it('should have correct channel range', () => {

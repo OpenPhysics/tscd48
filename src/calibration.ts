@@ -4,9 +4,6 @@
  */
 
 import type CD48 from './cd48.js';
-
-import { CHANNEL_MAX, CHANNEL_MIN } from './validation.js';
-
 import {
   DEFAULT_BACKGROUND_DURATION,
   DEFAULT_CALIBRATION_DURATION,
@@ -19,6 +16,7 @@ import {
   PLATEAU_REGION_THRESHOLD_LOWER,
   PLATEAU_REGION_THRESHOLD_UPPER,
 } from './constants.js';
+import { CHANNEL_MAX, CHANNEL_MIN } from './validation.js';
 
 /** Current calibration profile schema version */
 export const CALIBRATION_PROFILE_VERSION = 1;

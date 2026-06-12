@@ -4,142 +4,55 @@
  * @packageDocumentation
  */
 
-// Main CD48 class
-export { default as CD48, default } from './cd48.js';
-
-// Export types from CD48
 export type {
-  CD48Options,
-  ConnectionState,
-  ConnectionStateChangeData,
-  ConnectionStateChangeCallback,
-  MeasurementOptions,
-  ChannelInputs,
-  CountData,
-  MeasurementUncertainty,
-  RateMeasurement,
-  CoincidenceUncertainty,
-  CoincidenceMeasurementOptions,
-  CoincidenceMeasurement,
-  DisconnectCallback,
-  ReconnectCallback,
-  ReconnectFailedCallback,
-  FirmwareInfo,
-} from './cd48.js';
-
-// Error classes
-export {
-  CD48Error,
-  UnsupportedBrowserError,
-  NotConnectedError,
-  ConnectionError,
-  DeviceSelectionCancelledError,
-  CommandTimeoutError,
-  InvalidResponseError,
-  ValidationError,
-  InvalidChannelError,
-  InvalidVoltageError,
-  CommunicationError,
-  OperationAbortedError,
-  FirmwareIncompatibleError,
-} from './errors.js';
-
-// Validation utilities
-export {
-  CHANNEL_MIN,
-  CHANNEL_MAX,
-  VOLTAGE_MIN,
-  VOLTAGE_MAX,
-  BYTE_MIN,
-  BYTE_MAX,
-  REPEAT_INTERVAL_MIN,
-  REPEAT_INTERVAL_MAX,
-  // Branded type constructors
-  createChannel,
-  createVoltage,
-  createClampedVoltage,
-  // Type guards
-  isValidChannel,
-  isValidVoltage,
-  // Validation functions
-  validateChannel,
-  validateVoltage,
-  validateByte,
-  validateRepeatInterval,
-  validateDuration,
-  validateImpedanceMode,
-  validateBoolean,
-  clamp,
-  clampVoltage,
-  clampRepeatInterval,
-  voltageToByte,
-  byteToVoltage,
-} from './validation.js';
-
-// Branded types for type-safe channel and voltage values
-export type { Channel, Voltage, ImpedanceMode } from './validation.js';
-
-// Analysis utilities
-export { Statistics, Histogram, TimeSeries, Coincidence } from './analysis.js';
-
-export type {
-  LinearRegressionResult,
-  StatisticalSummary,
-  HistogramResult,
   CumulativeHistogramResult,
   HistogramOptions,
+  HistogramResult,
+  LinearRegressionResult,
+  StatisticalSummary,
 } from './analysis.js';
-
+// Analysis utilities
+export { Coincidence, Histogram, Statistics, TimeSeries } from './analysis.js';
+export type {
+  CalibrationCoefficients,
+  CalibrationErrorStats,
+  CalibrationPoint,
+  CalibrationProfileJSON,
+  CalibrationProfileOptions,
+  CalibrationReport,
+  CalibrationValidationResult,
+  ChannelCalibrationMap,
+  OptimalThresholdResult,
+} from './calibration.js';
 // Calibration utilities
 export {
   CALIBRATION_PROFILE_VERSION,
   CalibrationProfile,
   CalibrationStorage,
-  VoltageCalibration,
   CalibrationWizard,
+  VoltageCalibration,
 } from './calibration.js';
-
+// Export types from CD48
 export type {
-  ChannelCalibrationMap,
-  CalibrationProfileOptions,
-  CalibrationProfileJSON,
-  CalibrationPoint,
-  CalibrationCoefficients,
-  CalibrationErrorStats,
-  OptimalThresholdResult,
-  CalibrationValidationResult,
-  CalibrationReport,
-} from './calibration.js';
-
-// Development utilities
-export {
-  DevLogger,
-  ErrorOverlay,
-  PerformanceMonitor,
-  setupDevMode,
-} from './dev-utils.js';
-
-export type {
-  LogLevel,
-  LoggerColors,
-  DevLoggerOptions,
-  ErrorContext,
-  StoredError,
-  PerformanceStats,
-  SetupDevModeOptions,
-  DevModeUtilities,
-  GlobalDevUtilities,
-} from './dev-utils.js';
-
-// Data export utilities
-export { DataExport } from './export.js';
-
-export type {
-  ExportFormat,
-  ExportableMeasurement,
-  ExportOptions,
-} from './export.js';
-
+  CD48Options,
+  ChannelInputs,
+  CoincidenceMeasurement,
+  CoincidenceMeasurementOptions,
+  CoincidenceUncertainty,
+  ConnectionState,
+  ConnectionStateChangeCallback,
+  ConnectionStateChangeData,
+  CountData,
+  DisconnectCallback,
+  FirmwareInfo,
+  MeasurementOptions,
+  MeasurementUncertainty,
+  RateMeasurement,
+  ReconnectCallback,
+  ReconnectFailedCallback,
+} from './cd48.js';
+// Main CD48 class
+export { default as CD48, default } from './cd48.js';
 // Firmware version constants
 export {
   MIN_FIRMWARE_MAJOR,
@@ -147,3 +60,78 @@ export {
   MIN_FIRMWARE_PATCH,
   MIN_FIRMWARE_VERSION,
 } from './constants.js';
+export type {
+  DevLoggerOptions,
+  DevModeUtilities,
+  ErrorContext,
+  GlobalDevUtilities,
+  LoggerColors,
+  LogLevel,
+  PerformanceStats,
+  SetupDevModeOptions,
+  StoredError,
+} from './dev-utils.js';
+// Development utilities
+export {
+  DevLogger,
+  ErrorOverlay,
+  PerformanceMonitor,
+  setupDevMode,
+} from './dev-utils.js';
+// Error classes
+export {
+  CD48Error,
+  CommandTimeoutError,
+  CommunicationError,
+  ConnectionError,
+  DeviceSelectionCancelledError,
+  FirmwareIncompatibleError,
+  InvalidChannelError,
+  InvalidResponseError,
+  InvalidVoltageError,
+  NotConnectedError,
+  OperationAbortedError,
+  UnsupportedBrowserError,
+  ValidationError,
+} from './errors.js';
+export type {
+  ExportableMeasurement,
+  ExportFormat,
+  ExportOptions,
+} from './export.js';
+
+// Data export utilities
+export { DataExport } from './export.js';
+// Branded types for type-safe channel and voltage values
+export type { Channel, ImpedanceMode, Voltage } from './validation.js';
+// Validation utilities
+export {
+  BYTE_MAX,
+  BYTE_MIN,
+  byteToVoltage,
+  CHANNEL_MAX,
+  CHANNEL_MIN,
+  clamp,
+  clampRepeatInterval,
+  clampVoltage,
+  // Branded type constructors
+  createChannel,
+  createClampedVoltage,
+  createVoltage,
+  // Type guards
+  isValidChannel,
+  isValidVoltage,
+  REPEAT_INTERVAL_MAX,
+  REPEAT_INTERVAL_MIN,
+  VOLTAGE_MAX,
+  VOLTAGE_MIN,
+  validateBoolean,
+  validateByte,
+  // Validation functions
+  validateChannel,
+  validateDuration,
+  validateImpedanceMode,
+  validateRepeatInterval,
+  validateVoltage,
+  voltageToByte,
+} from './validation.js';

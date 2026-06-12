@@ -17,27 +17,6 @@
  */
 
 import {
-  CommandTimeoutError,
-  CommunicationError,
-  ConnectionError,
-  DeviceSelectionCancelledError,
-  FirmwareIncompatibleError,
-  InvalidResponseError,
-  NotConnectedError,
-  OperationAbortedError,
-  UnsupportedBrowserError,
-} from './errors.js';
-
-import {
-  BYTE_MAX,
-  REPEAT_INTERVAL_MAX,
-  REPEAT_INTERVAL_MIN,
-  VOLTAGE_MAX,
-  validateChannel,
-  voltageToByte,
-} from './validation.js';
-
-import {
   ACCIDENTAL_RATE_MULTIPLIER,
   BAUD_RATE,
   COINCIDENCE_WINDOW_SECONDS,
@@ -65,6 +44,25 @@ import {
   USB_VENDOR_ID,
   WEB_LOCK_NAME,
 } from './constants.js';
+import {
+  CommandTimeoutError,
+  CommunicationError,
+  ConnectionError,
+  DeviceSelectionCancelledError,
+  FirmwareIncompatibleError,
+  InvalidResponseError,
+  NotConnectedError,
+  OperationAbortedError,
+  UnsupportedBrowserError,
+} from './errors.js';
+import {
+  BYTE_MAX,
+  REPEAT_INTERVAL_MAX,
+  REPEAT_INTERVAL_MIN,
+  VOLTAGE_MAX,
+  validateChannel,
+  voltageToByte,
+} from './validation.js';
 
 /**
  * CD48 configuration options
