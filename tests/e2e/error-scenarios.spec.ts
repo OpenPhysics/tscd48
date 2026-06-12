@@ -1,4 +1,4 @@
-import { type Page, expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 /**
  * Error Scenario Tests
@@ -246,7 +246,6 @@ test.describe('Error Scenarios - Browser Compatibility', () => {
     // Override Web Serial API support
     await page.addInitScript(() => {
       // biome-ignore lint/suspicious/noExplicitAny: browser context — no type for navigator.serial override
-      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
       delete (navigator as any).serial;
     });
 

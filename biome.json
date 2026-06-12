@@ -1,13 +1,22 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
   "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      "docs",
-      "coverage",
-      "**/*.min.js",
-      "package-lock.json"
+    "includes": [
+      "**/*.ts",
+      "**/*.js",
+      "**/*.json",
+      "!dist",
+      "!docs",
+      "!coverage",
+      "!node_modules",
+      "!**/*.min.js",
+      "!package-lock.json"
     ]
   },
   "formatter": {
@@ -20,13 +29,13 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "correctness": {
         "noUnusedVariables": "warn"
       },
       "suspicious": {
         "noExplicitAny": "error",
-        "noConsoleLog": "off"
+        "noConsole": "off"
       },
       "style": {
         "useImportType": "warn",

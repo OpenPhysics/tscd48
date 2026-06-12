@@ -1,8 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  cleanupWebSerialMock,
-  setupWebSerialMock,
-} from '../mocks/web-serial.js';
+// Import CD48
+import CD48 from '../../src/cd48.js';
 
 // Import error classes
 import {
@@ -13,9 +11,10 @@ import {
   NotConnectedError,
   OperationAbortedError,
 } from '../../src/errors.js';
-
-// Import CD48
-import CD48 from '../../src/cd48.js';
+import {
+  cleanupWebSerialMock,
+  setupWebSerialMock,
+} from '../mocks/web-serial.js';
 
 describe('CD48', () => {
   let mocks: ReturnType<typeof setupWebSerialMock>;
@@ -88,7 +87,6 @@ describe('CD48', () => {
     });
 
     it('should return false when Web Serial API is not available', () => {
-      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
       delete (global.navigator as { serial?: unknown }).serial;
       expect(CD48.isSupported()).toBe(false);
     });
@@ -103,7 +101,6 @@ describe('CD48', () => {
     });
 
     it('should return false when Web Locks API is not available', () => {
-      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
       delete (global.navigator as Navigator & { locks?: unknown }).locks;
       expect(CD48.isWebLocksSupported()).toBe(false);
     });
@@ -111,7 +108,6 @@ describe('CD48', () => {
 
   describe('Connection', () => {
     it('should throw error if Web Serial API not supported', async () => {
-      // biome-ignore lint/performance/noDelete: delete is needed to fully remove the property for 'in' checks
       delete (global.navigator as { serial?: unknown }).serial;
       const cd48 = new CD48();
       await expect(cd48.connect()).rejects.toThrow(

@@ -13,7 +13,9 @@
   },
   "typesVersions": {
     "*": {
-      "*": ["dist/*"]
+      "*": [
+        "dist/*"
+      ]
     }
   },
   "exports": {
@@ -23,7 +25,13 @@
       "require": "./dist/cd48.umd.js"
     }
   },
-  "files": ["src", "dist", "README.md", "LICENSE", "TROUBLESHOOTING.md"],
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "LICENSE",
+    "TROUBLESHOOTING.md"
+  ],
   "scripts": {
     "start": "npx serve .",
     "dev": "vite",
@@ -95,7 +103,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.5.0",
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
     "@playwright/test": "^1.60.0",
@@ -121,7 +129,9 @@
     "lodash": "^4.18.0"
   },
   "lint-staged": {
-    "*.{ts,js,json,md}": ["biome check --write --no-errors-on-unmatched"]
+    "*.{ts,js,json,md}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
   },
   "config": {
     "commitizen": {
