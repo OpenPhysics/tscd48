@@ -95,11 +95,11 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: OpenPhysics/.github/.github/workflows/shared-dependency-review.yml@main
+    uses: OpenPhysics/Baton/.github/workflows/shared-dependency-review.yml@main
 
   codeql:
     permissions:
       actions: read
       contents: read
       security-events: write
-    uses: OpenPhysics/.github/.github/workflows/shared-codeql.yml@main
+    uses: OpenPhysics/Baton/.github/workflows/shared-codeql.yml@main
