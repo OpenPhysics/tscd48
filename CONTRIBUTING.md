@@ -51,8 +51,7 @@ This project uses [Husky](https://typicode.github.io/husky/) to enforce code qua
 
 Runs **before** each commit to ensure code quality:
 
-- ✅ Lints JavaScript files with ESLint (auto-fixes issues)
-- ✅ Formats all files with Prettier
+- ✅ Lints and formats staged files with Biome (auto-fixes issues)
 - ✅ Only checks staged files (via lint-staged)
 
 If any check fails, the commit will be aborted. Fix the issues and try again.
@@ -191,11 +190,10 @@ test: add tests for coincidence rate calculations
 
 ## Coding Standards
 
-### JavaScript Style
+### TypeScript Style
 
-- Use ES6+ features
-- Follow the ESLint configuration (`.eslintrc.json`)
-- Use Prettier for formatting (`.prettierrc.json`)
+- Use modern TypeScript (ES2020+) features
+- Follow the Biome configuration (`biome.json`) for linting and formatting
 - Use single quotes for strings
 - Use semicolons
 - Maximum line length: 80 characters
