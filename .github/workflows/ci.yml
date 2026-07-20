@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version: '24'
           cache: 'npm'
@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version: '24'
           cache: 'npm'
@@ -53,7 +53,7 @@ jobs:
     needs: [lint, test]
     steps:
       - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version: '24'
           cache: 'npm'
@@ -76,7 +76,7 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version: '24'
           cache: 'npm'
