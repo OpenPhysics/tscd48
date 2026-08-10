@@ -72,6 +72,9 @@ jobs:
           fi
 
           # Create a simple index for docs if it doesn't exist
+          # (mkdir first: when typedoc fails on TS7 there's no docs/api, so
+          # _site/docs was never created above and the cat would fail.)
+          mkdir -p _site/docs
           if [ ! -f "_site/docs/index.html" ]; then
             cat > _site/docs/index.html << 'EOF'
           <!DOCTYPE html>
