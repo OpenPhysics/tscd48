@@ -36,6 +36,13 @@ jobs:
         run: npm run build
 
       - name: Generate API documentation
+        # typedoc consumes the classic TypeScript compiler API (ts.SyntaxKind,
+        # ts.factory, createProgram). TypeScript 7 is the native rewrite: those
+        # moved to the `typescript/unstable/*` subpaths, so every typedoc version
+        # (0.28.x and 1.0.0-dev.x) crashes until typedoc is ported. Don't block the
+        # Pages deploy — the library bundles and examples still ship, and docs/api
+        # is copied below only when it exists.
+        continue-on-error: true
         run: npm run docs
 
       - name: Create deployment directory
