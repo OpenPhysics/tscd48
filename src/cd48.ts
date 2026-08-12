@@ -354,8 +354,11 @@ class CD48 {
     minor: number;
     patch: number;
   } {
-    // Extract version number pattern (e.g., "1.2.3" or "1.2")
-    const match = versionString.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    // Extract version number pattern (e.g., "1.2.3" or "1.2"). Bounded repeats
+    // avoid polynomial backtracking on crafted inputs (CodeQL js/polynomial-redos).
+    const match = versionString.match(
+      /(\d{1,10})\.(\d{1,10})(?:\.(\d{1,10}))?/
+    );
     if (match !== null) {
       return {
         major: Number.parseInt(match[1] ?? '0', DECIMAL_RADIX),

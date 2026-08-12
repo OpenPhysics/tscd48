@@ -290,7 +290,7 @@ export class ErrorOverlay {
 
         <div style="background: #1a1f3a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
           <div style="color: #ef4444; font-weight: bold; margin-bottom: 10px;">
-            ${error.name !== '' ? error.name : 'Error'}
+            ${this.escapeHtml(error.name !== '' ? error.name : 'Error')}
           </div>
           <div style="color: #eee; font-size: 16px; margin-bottom: 15px;">
             ${this.escapeHtml(error.message)}
