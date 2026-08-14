@@ -116,7 +116,7 @@
     "happy-dom": "^20.11.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
-    "playwright": "^1.61.1",
+    "playwright": "^1.62.1",
     "serve": "^14.2.6",
     "terser": "^5.49.2",
     "typedoc": "^0.28.20",
