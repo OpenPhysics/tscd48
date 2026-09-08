@@ -14,13 +14,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      // Vitest 5 resolves coverage excludes as globs; bare `tests/` no longer matches.
       exclude: [
-        'node_modules/',
-        'tests/',
-        'examples/',
-        '*.config.ts',
-        '*.config.js',
-        'docs/',
+        '**/node_modules/**',
+        '**/tests/**',
+        '**/examples/**',
+        '**/*.config.ts',
+        '**/*.config.js',
+        '**/docs/**',
       ],
       // Enforce 100% coverage thresholds
       thresholds: {
