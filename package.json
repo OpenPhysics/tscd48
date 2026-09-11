@@ -70,7 +70,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpenPhysics/tscd48.git"
+    "url": "git+https://github.com/OpenLyceum/tscd48.git"
   },
   "keywords": [
     "cd48",
@@ -93,12 +93,12 @@
     "lab-equipment",
     "typescript"
   ],
-  "author": "OpenPhysics Contributors",
+  "author": "OpenLyceum Contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenPhysics/tscd48/issues"
+    "url": "https://github.com/OpenLyceum/tscd48/issues"
   },
-  "homepage": "https://github.com/OpenPhysics/tscd48#readme",
+  "homepage": "https://github.com/OpenLyceum/tscd48#readme",
   "publishConfig": {
     "access": "public"
   },

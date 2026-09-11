@@ -2,7 +2,7 @@
 
 **Date:** January 19, 2026
 **Reviewer:** Claude Code Review
-**Repository:** OpenPhysics/tscd48
+**Repository:** OpenLyceum/tscd48
 **Version:** 2.0.0
 
 ---
