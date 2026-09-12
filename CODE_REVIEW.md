@@ -5,6 +5,13 @@
 **Repository:** OpenPhysics/tscd48
 **Version:** 2.0.0
 
+> **Note (September 2026):** The CI/CD details below describe the pipeline as it existed at
+> review time. It has since been simplified twice (see `.github/BRANCH_PROTECTION.md`): the
+> Node 18-24 test matrix and separate lint/typecheck/test/build jobs were collapsed into one
+> `verify` job, and bundle-size monitoring / performance-benchmark CI jobs were dropped. The
+> bullets below are left as originally written for historical accuracy; treat CI specifics as
+> outdated.
+
 ---
 
 ## Executive Summary

@@ -159,14 +159,15 @@ jobs:
   fuzz-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.0.0
         with:
-          node-version: '18'
+          node-version: '24'
+          cache: 'npm'
       - run: npm ci
-      - run: npx playwright install chromium
-      - run: npm run test:e2e -- tests/e2e/link-button-fuzzing.spec.ts
-      - uses: actions/upload-artifact@v4
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- tests/e2e/link-button-fuzzing.spec.ts --project=chromium
+      - uses: actions/upload-artifact@v7.0.1
         if: failure()
         with:
           name: fuzzing-test-results
