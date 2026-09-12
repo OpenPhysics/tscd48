@@ -1001,6 +1001,12 @@ describe('CD48', () => {
       expect(mocks.mockWriter.write).toHaveBeenCalled();
     });
 
+    it('should throw InvalidResponseError for malformed overflow response', async () => {
+      mocks.mockPort._setResponse('E\r', 'invalid\r\n');
+
+      await expect(cd48.getOverflow()).rejects.toThrow(InvalidResponseError);
+    });
+
     it('should get settings in human readable format', async () => {
       const settings = await cd48.getSettings(true);
       expect(typeof settings).toBe('string');

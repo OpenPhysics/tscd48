@@ -672,19 +672,25 @@ export class CalibrationWizard {
       results.push({ threshold, rate });
     }
 
-    // Find plateau region (where rate is stable)
+    // Find plateau region (where rate is stable between adjacent
+    // thresholds). Comparing against the running max-so-far would lock
+    // onto an early noise-dominated peak instead of the true plateau, since
+    // a real signal plateau typically sits well below the initial noise
+    // rate at low threshold.
     let optimalThreshold = testThresholds[0] ?? 0;
-    let maxRate = 0;
+    let previousRate: number | null = null;
 
     for (const result of results) {
       if (
-        result.rate > maxRate * PLATEAU_REGION_THRESHOLD_LOWER &&
-        result.rate < maxRate * PLATEAU_REGION_THRESHOLD_UPPER
+        previousRate !== null &&
+        previousRate > 0 &&
+        result.rate > previousRate * PLATEAU_REGION_THRESHOLD_LOWER &&
+        result.rate < previousRate * PLATEAU_REGION_THRESHOLD_UPPER
       ) {
-        // In plateau
+        // In plateau - rate has stabilized relative to the previous step
         optimalThreshold = result.threshold;
       }
-      maxRate = Math.max(maxRate, result.rate);
+      previousRate = result.rate;
     }
 
     this.profile.setThreshold(channel, optimalThreshold);

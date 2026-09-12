@@ -361,12 +361,31 @@ export const TimeSeries = {
   movingAverage(data: number[], window: number): number[] {
     if (data.length === 0 || window < 1) return [];
 
+    const halfLower = Math.floor(window / 2);
+    const halfUpper = Math.ceil(window / 2);
+
+    // Slide the [start, end) window across data with a running sum instead
+    // of re-slicing and re-summing on every index (O(n) instead of
+    // O(n*window); start and end both advance monotonically with i, so
+    // each element enters and leaves the sum exactly once overall).
     const result: number[] = [];
+    let start = 0;
+    let end = Math.min(data.length, halfUpper);
+    let sum = 0;
+    for (let k = start; k < end; k++) {
+      sum += data[k] ?? 0;
+    }
+
     for (let i = 0; i < data.length; i++) {
-      const start = Math.max(0, i - Math.floor(window / 2));
-      const end = Math.min(data.length, i + Math.ceil(window / 2));
-      const slice = data.slice(start, end);
-      result.push(Statistics.mean(slice));
+      const newStart = Math.max(0, i - halfLower);
+      const newEnd = Math.min(data.length, i + halfUpper);
+
+      for (let k = start; k < newStart; k++) sum -= data[k] ?? 0;
+      for (let k = end; k < newEnd; k++) sum += data[k] ?? 0;
+      start = newStart;
+      end = newEnd;
+
+      result.push(sum / (end - start));
     }
     return result;
   },

@@ -56,10 +56,9 @@ import {
   UnsupportedBrowserError,
 } from './errors.js';
 import {
-  BYTE_MAX,
+  byteToVoltage,
   REPEAT_INTERVAL_MAX,
   REPEAT_INTERVAL_MIN,
-  VOLTAGE_MAX,
   validateChannel,
   voltageToByte,
 } from './validation.js';
@@ -340,7 +339,7 @@ class CD48 {
    * @returns Voltage (0.0 to 4.08V)
    */
   public static byteToVoltage(byteValue: number): number {
-    return (byteValue / BYTE_MAX) * VOLTAGE_MAX;
+    return byteToVoltage(byteValue);
   }
 
   /**
@@ -449,6 +448,7 @@ class CD48 {
       this._setConnectionState('connected');
       return true;
     } catch (error) {
+      await this._cleanupConnection();
       this._setConnectionState('disconnected');
       if (error instanceof Error && error.name === 'NotFoundError') {
         throw new DeviceSelectionCancelledError();
@@ -494,6 +494,7 @@ class CD48 {
 
       return true;
     } catch (error) {
+      await this._cleanupConnection();
       this._setConnectionState('disconnected');
       throw error;
     } finally {
@@ -748,10 +749,7 @@ class CD48 {
    * @returns Response from device
    */
   public async setDacVoltage(voltage: number): Promise<string> {
-    const byteVal = Math.max(
-      0,
-      Math.min(BYTE_MAX, Math.round((voltage / VOLTAGE_MAX) * BYTE_MAX))
-    );
+    const byteVal = voltageToByte(voltage);
     return await this.sendCommand(`V${byteVal}`);
   }
 
@@ -761,7 +759,11 @@ class CD48 {
    */
   public async getOverflow(): Promise<number> {
     const response = await this.sendCommand('E');
-    return Number.parseInt(response, DECIMAL_RADIX);
+    const overflow = Number.parseInt(response, DECIMAL_RADIX);
+    if (Number.isNaN(overflow)) {
+      throw new InvalidResponseError(response, '8-bit overflow flag');
+    }
+    return overflow;
   }
 
   /**
@@ -984,15 +986,21 @@ class CD48 {
       await this.writer.write(`${command}\r`);
       await this.sleep(this.commandDelay);
 
-      // Read response with timeout
+      // Read response with timeout. A single reader.read() call is kept
+      // pending across loop iterations - reissuing read() while an earlier
+      // call is still outstanding would queue both on the stream, and any
+      // data that arrives resolves the OLDEST queued read first, silently
+      // dropping it since nothing awaits that earlier promise anymore.
       let response = '';
       const startTime = Date.now();
       const timeout = COMMAND_TIMEOUT_MS;
+      let pendingRead: Promise<ReadResult> | null = null;
 
       while (Date.now() - startTime < timeout) {
-        const readPromise: Promise<ReadResult> = this.reader
+        pendingRead ??= this.reader
           .read()
           .then((result) => ({ value: result.value ?? '', done: result.done }));
+
         const timeoutPromise: Promise<ReadResult> = this.sleep(
           READ_TIMEOUT_INTERVAL_MS
         ).then(() => ({
@@ -1001,7 +1009,13 @@ class CD48 {
           timeout: true,
         }));
 
-        const result = await Promise.race([readPromise, timeoutPromise]);
+        const result = await Promise.race([pendingRead, timeoutPromise]);
+
+        if (result.timeout === true) {
+          // The read is still outstanding; keep racing the same promise.
+          continue;
+        }
+        pendingRead = null;
 
         if (result.done) break;
         if (result.value !== '') response += result.value;
