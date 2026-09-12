@@ -222,7 +222,7 @@ Planned accessibility improvements:
 
 If you encounter accessibility barriers while using tscd48:
 
-1. **Open an issue** on GitHub: https://github.com/OpenLyceum/tscd48/issues
+1. **Open an issue** on GitHub: https://github.com/OpenPhysics/tscd48/issues
 2. **Use the template** "Accessibility Issue"
 3. **Provide details:**
    - Browser and version
@@ -252,5 +252,5 @@ Recommended tools for testing accessibility:
 ---
 
 Last updated: 2026-01-16
-Maintainer: OpenLyceum Contributors
-Contact: https://github.com/OpenLyceum/tscd48/issues
+Maintainer: OpenPhysics Contributors
+Contact: https://github.com/OpenPhysics/tscd48/issues
